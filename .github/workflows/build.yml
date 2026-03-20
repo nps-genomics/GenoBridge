@@ -23,6 +23,11 @@ jobs:
       with:
         python-version: '3.12'
 
+    - name: Restore source files from secrets
+      run: |
+        echo "${{ secrets.ADAPTIVE_PIPELINE_PY }}" | base64 --decode > adaptive_ensemble_pipeline.py
+        echo "${{ secrets.GWAS_ML_HYBRID_PY }}" | base64 --decode > gwas_ml_hybrid.py
+
     - name: Install dependencies
       run: |
         pip install pyinstaller scikit-learn xgboost scikit-allel
