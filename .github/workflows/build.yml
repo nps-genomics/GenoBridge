@@ -1,0 +1,55 @@
+name: Build AdaptGenoPred Executables
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        pip install pyinstaller scikit-learn xgboost scikit-allel
+        pip install numpy pandas scipy matplotlib
+
+    - name: Build AdaptGenoPred (Linux/macOS)
+      if: runner.os != 'Windows'
+      run: |
+        pyinstaller --onefile \
+          --hidden-import=allel \
+          --hidden-import=xgboost \
+          --hidden-import=sklearn \
+          --hidden-import=scipy.stats \
+          --name=AdaptGenoPred \
+          adaptive_ensemble_pipeline.py
+
+    - name: Build AdaptGenoPred (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        pyinstaller --onefile `
+          --hidden-import=allel `
+          --hidden-import=xgboost `
+          --hidden-import=sklearn `
+          --hidden-import=scipy.stats `
+          --name=AdaptGenoPred `
+          adaptive_ensemble_pipeline.py
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: AdaptGenoPred-${{ matrix.os }}
+        path: dist/
