@@ -9,7 +9,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest]
 
     runs-on: ${{ matrix.os }}
 
@@ -24,32 +24,49 @@ jobs:
     - name: Install dependencies
       run: |
         pip install pyinstaller scikit-learn xgboost scikit-allel
-        pip install numpy pandas scipy matplotlib
+        pip install numpy pandas scipy matplotlib dask
 
-    - name: Build AdaptGenoPred (Linux/macOS)
-      if: runner.os != 'Windows'
+    - name: Build binary (Linux)
+      if: runner.os == 'Linux'
       run: |
         pyinstaller --onefile \
-          --hidden-import=allel \
-          --hidden-import=xgboost \
-          --hidden-import=sklearn \
-          --hidden-import=scipy.stats \
-          --name=AdaptGenoPred \
+          --collect-all=allel \
+          --collect-all=dask \
+          --collect-all=xgboost \
+          --copy-metadata=numpy \
+          --copy-metadata=scipy \
+          --copy-metadata=pandas \
+          --copy-metadata=scikit-learn \
+          --copy-metadata=xgboost \
+          --copy-metadata=scikit-allel \
+          --name=AdaptGenoPred-ubuntu \
           adaptive_ensemble_pipeline.py
 
-    - name: Build AdaptGenoPred (Windows)
-      if: runner.os == 'Windows'
+    - name: Build binary (macOS)
+      if: runner.os == 'macOS'
       run: |
-        pyinstaller --onefile `
-          --hidden-import=allel `
-          --hidden-import=xgboost `
-          --hidden-import=sklearn `
-          --hidden-import=scipy.stats `
-          --name=AdaptGenoPred `
+        pyinstaller --onefile \
+          --collect-all=allel \
+          --collect-all=dask \
+          --collect-all=xgboost \
+          --copy-metadata=numpy \
+          --copy-metadata=scipy \
+          --copy-metadata=pandas \
+          --copy-metadata=scikit-learn \
+          --copy-metadata=xgboost \
+          --copy-metadata=scikit-allel \
+          --name=AdaptGenoPred-macos \
           adaptive_ensemble_pipeline.py
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: AdaptGenoPred-${{ matrix.os }}
-        path: dist/
+    - name: Package as tar.gz
+      run: |
+        cd dist
+        tar -czf AdaptGenoPred-${{ runner.os }}.tar.gz AdaptGenoPred-*
+
+    - name: Upload to GitHub Release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release upload ${{ github.ref_name }} \
+          dist/AdaptGenoPred-${{ runner.os }}.tar.gz \
+          --repo ${{ github.repository }} --clobber
