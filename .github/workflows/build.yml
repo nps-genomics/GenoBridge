@@ -28,7 +28,7 @@ jobs:
         pip install pyinstaller scikit-learn xgboost scikit-allel
         pip install numpy pandas scipy matplotlib dask
 
-    - name: Build binary
+    - name: Build AdaptGenoPred binary
       run: >
         pyinstaller --onefile
         --collect-all allel
@@ -43,13 +43,31 @@ jobs:
         --name AdaptGenoPred-${{ runner.os }}
         adaptive_ensemble_pipeline.py
 
-    - name: Package as tar.gz
+    - name: Build GWASml binary
+      run: >
+        pyinstaller --onefile
+        --collect-all allel
+        --collect-all dask
+        --collect-all xgboost
+        --copy-metadata numpy
+        --copy-metadata scipy
+        --copy-metadata pandas
+        --copy-metadata scikit-learn
+        --copy-metadata xgboost
+        --copy-metadata scikit-allel
+        --name GWASml-${{ runner.os }}
+        gwas_ml_hybrid.py
+
+    - name: Package binaries
       run: |
         cd dist
         tar -czf AdaptGenoPred-${{ runner.os }}.tar.gz AdaptGenoPred-${{ runner.os }}*
+        tar -czf GWASml-${{ runner.os }}.tar.gz GWASml-${{ runner.os }}*
 
     - name: Upload to GitHub Release
       uses: softprops/action-gh-release@v2
       with:
-        files: dist/AdaptGenoPred-${{ runner.os }}.tar.gz
+        files: |
+          dist/AdaptGenoPred-${{ runner.os }}.tar.gz
+          dist/GWASml-${{ runner.os }}.tar.gz
         fail_on_unmatched_files: true
