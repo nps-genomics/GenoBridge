@@ -199,6 +199,7 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 
 ## Contact
 
-**Nagendra Singh**   
+**Nagendra Singh & Venugopal mendu**   
 Texas A&M University 
+Email: nagendra.singh@agnet.tamu.edu, Venugopal.Mendu@tamuk.edu
 GitHub: [@nps-genomics](https://github.com/nps-genomics)
