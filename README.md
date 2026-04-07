@@ -58,7 +58,6 @@ Both tools are distributed as **standalone binaries** — no Python, no dependen
 | **Linux (Ubuntu/Debian)** | [GenoBridge_Linux.tar.gz](https://github.com/nps-genomics/GenoBridge/releases/download/v1.0/GenoBridge_Linux.tar.gz) | [GenoBridge_GWAS_ML_Linux.tar.gz](https://github.com/nps-genomics/GenoBridge/releases/download/v1.0/GenoBridge_GWAS_ML_Linux.tar.gz) |
 | **macOS** | [GenoBridge_macOS.tar.gz](https://github.com/nps-genomics/GenoBridge/releases/download/v1.0/GenoBridge_macOS.tar.gz) | [GenoBridge_GWAS_ML_macOS.tar.gz](https://github.com/nps-genomics/GenoBridge/releases/download/v1.0/GenoBridge_GWAS_ML_macOS.tar.gz) |
 
-### SHA256 Checksums (v1.0)
 
 
 ---
