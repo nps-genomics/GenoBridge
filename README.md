@@ -105,8 +105,7 @@ xattr -d com.apple.quarantine GenoBridge_GWAS_ML_macOS
 ./GenoBridge_Linux \
   --phenotype data/phenotypes.csv \
   --vcf data/genotypes.vcf.gz \
-  --output results/ \
-  --n-pop-pcs 5 \
+  --output results/ 
   --accession-col accession_id
 ```
 
@@ -115,7 +114,7 @@ xattr -d com.apple.quarantine GenoBridge_GWAS_ML_macOS
 ./GenoBridge_GWAS_ML_Linux \
   --phenotype data/phenotypes.csv \
   --vcf data/genotypes.vcf.gz \
-  --ml-results results/summary_report.csv \
+  --ml-results results/phenotype_prediction_results.csv \
   --gff data/genome.gff3 \
   --output results/gwasml \
   --ml-threshold 0.3 \
@@ -129,7 +128,7 @@ xattr -d com.apple.quarantine GenoBridge_GWAS_ML_macOS
 
 # Step 2 — GWAS + ML Candidate Gene Discovery
 ./GenoBridge_GWAS_ML_Linux --phenotype phenotypes.csv --vcf genotypes.vcf.gz \
-  --ml-results step1_output/summary_report.csv --gff genome.gff3 --output step2_output
+  --ml-results step1_output/phenotype_prediction_results.csv --gff genome.gff3 --output step2_output
 ```
 
 ---
@@ -138,8 +137,10 @@ xattr -d com.apple.quarantine GenoBridge_GWAS_ML_macOS
 
 ### Phenotype CSV
 accession_id,trait1,trait2,trait3
+```bash
 ACC001,12.5,3.2,0.87
 ACC002,14.1,2.9,0.91
+```
 
 
 ### VCF File
