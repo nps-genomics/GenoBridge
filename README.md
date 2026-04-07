@@ -45,7 +45,7 @@ Both tools are distributed as **standalone binaries** — no Python, no dependen
 
 | Tool | Description |
 |------|-------------|
-| `GenoBridge` | Ensemble ML pipeline (Random Forest, XGBoost, SVM) for phenotype prediction from genotype data |
+| `GenoBridge` | Ensemble ML pipeline (Ridge regression, Random Forest, XGBoost, a multi-layer perceptron, and a stacking ensemble) for phenotype prediction from genotype data |
 | `GenoBridge_GWAS_ML` | Hybrid GWAS + ML pipeline for candidate gene discovery with population structure correction |
 
 ---
