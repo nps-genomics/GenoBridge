@@ -5,6 +5,9 @@
 ![Version](https://img.shields.io/badge/version-1.0-green)
 
 **Adaptive ensemble ML pipeline for genotype-to-phenotype prediction with integrated GWAS and candidate gene discovery.**  
+Genome-wide association studies (GWAS) utilize genomic information to identify candidate loci associated with agronomically important traits, while genomic prediction (GP) estimates the overall genetic contribution to phenotypic variation. Together, GP and GWAS are foundational methodologies in modern plant breeding for crop improvement. However, none of the existing pipelines integrates all three components, sample-size-adaptive ML model selection, CV-R² evaluation, and ML-gated GWAS within a single automated workflow. Current analytical methods exhibit three major limitations, model selection is largely assumption-driven, overlooking the predictable relationship between cohort size and optimal model class, Pearson correlation remains the default accuracy metric despite its inability to distinguish true predictive generalization from rank-order preservation; and GWAS and GP are traditionally conducted independently, misallocating statistical power by running association analysis on traits with no evidence of genomic predictability.<img width="468" height="345" alt="image" src="https://github.com/user-attachments/assets/348d04d0-2e25-4d9b-a0ef-f6417c5d5ce0" />
+
+
 Supports 30–100,000+ samples across any plant species. No Python installation required — runs as a standalone binary.
 
 ---
