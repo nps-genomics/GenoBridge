@@ -185,7 +185,7 @@ output/
 ---
 
 ## Citation
-Singh, N. Mendu L, Mendu V, (2026). GenoBridge: Adaptive ensemble ML pipeline for
+Singh, N. Mendu V, (2026). GenoBridge: Adaptive ensemble ML pipeline for
 genotype-to-phenotype prediction with integrated GWAS and candidate
 gene discovery. GitHub. https://github.com/nps-genomics/GenoBridge
 
