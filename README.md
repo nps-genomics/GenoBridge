@@ -155,18 +155,18 @@ Standard GFF3 genome annotation file for candidate gene identification.
 ### GenoBridge
 
 output/
-├── predictions/
-├── feature_importance/
-├── model_performance/
-└── summary_report.csv
+── predictions/
+── feature_importance/
+── model_performance/
+── summary_report.csv
 
 
 ### GenoBridge_GWAS_ML
 output/
-├── gwas_results/
-├── candidate_genes/
-├── cross_reference/
-└── summary_report.csv
+── gwas_results/
+── candidate_genes/
+── cross_reference/
+── summary_report.csv
 
 
 ---
