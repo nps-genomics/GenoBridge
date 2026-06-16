@@ -101,11 +101,10 @@ xattr -d com.apple.quarantine GenoBridge_GWAS_ML_macOS
 
 ### GenoBridge
 ```bash
-./GenoBridge_Linux \
-  --phenotype data/phenotypes.csv \
-  --vcf data/genotypes.vcf.gz \
-  --output results/ 
-  --accession-col accession_id
+./AdaptGenoPred-CentOS --phenotype Phenotype_data.csv --vcf Genotype_data.vcf --output results --accession-col accession_id --no-outlier-removal
+
+Note: --no-outlier-removal is optional, If any trait has >50% missing data → skip outlier removal (sparse multi-environment data like wheat)
+If all traits have <10% missing data → apply outlier removal (dense panels like Arabidopsis, Rice)
 ```
 
 ### GenoBridge_GWAS_ML
@@ -115,11 +114,32 @@ xattr -d com.apple.quarantine GenoBridge_GWAS_ML_macOS
   --vcf data/genotypes.vcf.gz \
   --ml-results results/phenotype_prediction_results.csv \
   --gff data/genome.gff3 \
+ --accession-col accession_id \
   --output results/gwasml \
-  --ml-threshold 0.3 \
-  --n-pop-pcs 5
+  --no-outlier-removal
 ```
+### Benchmark comparison against six established genomic prediction methods
+```bash
+# Mode 1: Auto-detect (recommended default — no flag needed)
+python GenoBridge_Benchmark_Final.py \
+    --phenotype your_phenotype.csv \
+    --vcf your_genotype.vcf.gz \
+    --output results/
 
+# Mode 2: Force disable outlier removal (sparse/multi-environment data)
+python GenoBridge_Benchmark_Final.py \
+    --phenotype your_phenotype.csv \
+    --vcf your_genotype.vcf.gz \
+    --output results/ \
+    --no-outlier-removal
+
+# Mode 3: Force enable outlier removal (dense panels with known outliers)
+python GenoBridge_Benchmark_Final.py \
+    --phenotype your_phenotype.csv \
+    --vcf your_genotype.vcf.gz \
+    --output results/ \
+    --outlier-removal
+```
 ### Full Pipeline
 ```bash
 # Step 1 — Genotype-to-Phenotype Prediction
