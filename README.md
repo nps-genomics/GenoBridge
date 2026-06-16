@@ -148,6 +148,13 @@ python GenoBridge_Benchmark_Final.py \
 # Step 2 — GWAS + ML Candidate Gene Discovery
 ./GenoBridge_GWAS_ML_Linux --phenotype phenotypes.csv --vcf genotypes.vcf.gz \
   --ml-results step1_output/phenotype_prediction_results.csv --gff genome.gff3 --output step2_output
+
+#Step 3 — Benchmark Comparison
+python GenoBridge_Benchmark_Final.py \
+    --phenotype your_phenotype.csv \
+    --vcf your_genotype.vcf.gz \
+    --output results/ \
+    --no-outlier-removal
 ```
 
 ---
