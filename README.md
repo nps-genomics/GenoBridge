@@ -103,8 +103,7 @@ xattr -d com.apple.quarantine GenoBridge_GWAS_ML_macOS
 ```bash
 ./AdaptGenoPred-CentOS --phenotype Phenotype_data.csv --vcf Genotype_data.vcf --output results --accession-col accession_id --no-outlier-removal
 
-#Note: --no-outlier-removal is optional, If any trait has >50% missing data → skip outlier removal (sparse multi-environment data like wheat)
-If all traits have <10% missing data → apply outlier removal (dense panels like Arabidopsis, Rice)
+#Note: --no-outlier-removal is optional, If any trait has >50% missing data → skip outlier removal (sparse multi-environment data like wheat). If all traits have <10% missing data → apply outlier removal (dense panels like Arabidopsis, Rice)
 ```
 
 ### GenoBridge_GWAS_ML
