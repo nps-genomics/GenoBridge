@@ -275,7 +275,7 @@ must state that they were changed and preserve the original attribution.
 > sample-size-adaptive machine-learning pipeline for genomic prediction and
 > ML-gated GWAS.* Plant Methods. DOI: *[waiting on acceptance]*
 
-and the archived release (Zenodo DOI: *[add after archiving]*). A
+and the archived release (Zenodo DOI: *[waiting on acceptance]*). A
 machine-readable citation is in `CITATION.cff`.
 
 ---
@@ -301,4 +301,4 @@ match the VCF sample IDs. A near-zero overlap silently produces null results.
 
 ---
 
-*Developed at the Texas A&M University-Kingsville Citrus Center.*
+*.*
