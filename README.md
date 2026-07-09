@@ -103,7 +103,7 @@ Python packages: numpy, pandas, scipy, scikit-learn, xgboost, matplotlib.
 
 ```bash
 # Step 1 — prediction + trait triage
-python genobridge_FIXED.py \
+python genobridge_v1.py \
   --phenotype examples/rice_phenotype.csv \
   --vcf       examples/rice_geno.vcf \
   --accession-col accession_id \
@@ -111,7 +111,7 @@ python genobridge_FIXED.py \
   --no-outlier-removal
 
 # Step 2 — mixed-model GWAS on the traits that passed the gate
-python genobridge_gwas_gemma.py \
+python genobridge_gwas_v1.py \
   --label     rice \
   --phenotype examples/rice_phenotype.csv \
   --vcf       examples/rice_geno.vcf \
@@ -131,7 +131,7 @@ Trains and evaluates prediction models per trait and writes a per-trait accuracy
 table used as the GWAS gate.
 
 ```
-python genobridge_FIXED.py --phenotype FILE --vcf FILE [options]
+python genobridge_v1.py --phenotype FILE --vcf FILE [options]
 ```
 
 | Argument | Default | Description |
@@ -159,7 +159,7 @@ Runs a kinship linear mixed-model GWAS (GEMMA) for gated traits and annotates
 hits to nearby genes.
 
 ```
-python genobridge_gwas_gemma.py --phenotype FILE --vcf FILE --gff FILE [options]
+python genobridge_gwas_v1.py --phenotype FILE --vcf FILE --gff FILE [options]
 ```
 
 | Argument | Default | Description |
@@ -234,13 +234,13 @@ root:
 
 ```bash
 # prediction
-python genobridge_FIXED.py \
+python genobridge_v1.py \
   --phenotype examples/rice_phenotype.csv \
   --vcf examples/rice_geno.vcf \
   --output example_results/ --no-outlier-removal
 
 # GWAS on gated traits
-python genobridge_gwas_gemma.py --label example \
+python genobridge_gwas_v1.py --label example \
   --phenotype examples/rice_phenotype.csv \
   --vcf examples/rice_geno.vcf \
   --gff examples/rice_genes.gff3 \
