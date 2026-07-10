@@ -1,304 +1,451 @@
 # GenoBridge
 
-**An automated, sample-size-adaptive machine-learning pipeline for genomic
-prediction and mixed-model (GWAS) association, with a predictability gate that
-links the two.**
+**A sample-size-adaptive machine-learning and mixed-model GWAS framework for genotype-to-phenotype analysis.**
 
-GenoBridge takes standard genotype (VCF) and phenotype (CSV) inputs and, without
-manual tuning: (1) selects prediction models appropriate to the dataset size,
-(2) evaluates every trait with multiple complementary metrics, (3) runs a
-kinship linear mixed-model GWAS only for traits that show heritable signal, and
-(4) annotates the resulting associations to nearby genes.
+GenoBridge integrates genomic prediction with a predictability-gated genome-wide association study workflow. It:
 
-- **Open source** (Apache 2.0) — full Python source, no hidden binaries.
-- **Reproducible** — one-command conda environment; a worked example is included.
-- **Statistically grounded** — reports Pearson *r*, Spearman ρ, RMSE, and
-  cross-validated R²; GWAS uses a kinship mixed model with per-trait genomic
-  inflation (λ) reporting.
+1. Automatically adjusts model complexity according to sample size.
+2. Evaluates multiple prediction models for every phenotype.
+3. Identifies traits with sufficient genomic predictability.
+4. Runs kinship-adjusted mixed-model GWAS using GEMMA.
+5. Annotates significant associations to nearby genes.
 
----
+## Software distribution
 
-## Contents
-- [How it works](#how-it-works)
-- [Installation](#installation)
-- [Quick start](#quick-start)
-- [Tool 1 — genomic prediction](#tool-1--genomic-prediction-genobridge_fixedpy)
-- [Tool 2 — mixed-model GWAS](#tool-2--mixed-model-gwas-genobridge_gwas_gemmapy)
-- [Input formats](#input-formats)
-- [Output files](#output-files)
-- [Worked example](#worked-example)
-- [Dependencies](#dependencies)
-- [License and citation](#license-and-citation)
-- [FAQ / troubleshooting](#faq--troubleshooting)
+GenoBridge is distributed as a **compiled Python wheel**.
+
+* The original Python and Cython implementation source is not distributed.
+* Prediction and GWAS modules are installed as compiled Linux extension modules.
+* The current release supports:
+
+  * Linux x86_64
+  * CPython 3.12
+* GEMMA and PLINK2 are required external programs.
+
+The public GitHub repository contains documentation, example input formats, citation information, and release files. It does not contain the private implementation source.
 
 ---
 
-## How it works
+## Workflow
 
-GenoBridge runs in two steps that share one idea: **spend GWAS effort only on
-traits the genome can actually predict.**
-
+```text
+Phenotype CSV ┐
+              ├── GenoBridge prediction
+Genotype VCF ┘         │
+                       ├── Per-trait prediction metrics
+                       ├── Best model selection
+                       └── Predictability gate
+                                  │
+                                  ▼
+Genotype VCF ── PLINK2 preprocessing ── GEMMA mixed-model GWAS
+                                  │
+                                  ├── Association statistics
+                                  ├── Manhattan and QQ plots
+                                  ├── Genomic inflation estimates
+                                  └── Nearest-gene annotation
 ```
-  phenotypes.csv ┐
-                 ├─► [1] PREDICTION ─► per-trait accuracy (r, ρ, RMSE, CV-R²)
-  genotypes.vcf ─┘         │
-                           ▼
-                     predictability gate  (best CV-selected r ≥ 0.30 ?)
-                           │ yes
-                           ▼
-  genotypes.vcf ─► [2] MIXED-MODEL GWAS (GEMMA) ─► associations + gene annotation
-```
 
-**Step 1** classifies the dataset into a size regime and, for each trait, trains
-five models (Ridge, Random Forest, XGBoost, a neural network, and a stacking
-ensemble), selecting the best per trait by **cross-validated R²** (not test-set
-performance, to avoid selection bias). It reports Pearson *r*, Spearman ρ, RMSE,
-and CV-R² for every trait and model.
+GenoBridge prediction evaluates Ridge regression, Random Forest, XGBoost, neural-network, and stacking models. Model capacity, PCA dimensions, validation strategy, and ensemble composition are adjusted according to dataset size.
 
-**Step 2** runs a **kinship linear mixed-model GWAS** (via GEMMA) for each trait
-that passes the gate, controlling for population structure, and annotates
-significant SNPs to the nearest gene. Genomic inflation (λ) is reported per
-trait so structure control is transparent.
-
-> The gate is a **heritability screen**, not a claim about which loci matter:
-> a trait with negligible genome-wide predictability is unlikely to reward
-> association testing, so GWAS effort is focused where signal exists. Prediction
-> accuracy and GWAS detectability are distinct — a trait may have a strong
-> single-locus association yet modest genome-wide predictability, or vice versa.
+The GWAS module uses PLINK2 for genotype preprocessing and GEMMA for kinship-adjusted linear mixed-model association testing.
 
 ---
 
 ## Installation
 
-GenoBridge is Python, and its GWAS module calls two external command-line tools
-(**GEMMA** and **PLINK2**). The easiest setup installs everything at once:
+### System compatibility
+
+The current GenoBridge wheel requires:
+
+* Linux x86_64
+* Python 3.12
+* GEMMA 0.98.5 or later
+* PLINK2
+
+### Recommended installation
+
+Create a Conda environment containing Python, GEMMA, and PLINK2:
 
 ```bash
-git clone https://github.com/nps-genomics/GenoBridge.git
-cd GenoBridge
-conda env create -f environment.yml
+conda create -y -n genobridge \
+  -c conda-forge \
+  -c bioconda \
+  python=3.12 \
+  pip \
+  gemma=0.98.5 \
+  plink2
+
 conda activate genobridge
 ```
 
-Verify the external tools are visible:
+Install the compiled GenoBridge wheel:
 
 ```bash
-gemma  -h    # should print GEMMA version >= 0.98.5
+python -m pip install \
+  https://github.com/nps-genomics/GenoBridge/releases/download/v1.0.0/genobridge-1.0.0-cp312-cp312-linux_x86_64.whl
+```
+
+Alternatively, download the wheel from the GitHub Releases page and install it locally:
+
+```bash
+python -m pip install \
+  genobridge-1.0.0-cp312-cp312-linux_x86_64.whl
+```
+
+Verify the installation:
+
+```bash
+genobridge-predict --help
+genobridge-gwas --help
 plink2 --version
+gemma -h
 ```
-
-<details>
-<summary>Manual / pip installation</summary>
-
-```bash
-pip install -r requirements.txt          # Python packages only
-conda install -c bioconda gemma plink2   # external tools (not pip-installable)
-```
-Python packages: numpy, pandas, scipy, scikit-learn, xgboost, matplotlib.
-</details>
 
 ---
 
 ## Quick start
 
+### Step 1: genomic prediction and trait triage
+
 ```bash
-# Step 1 — prediction + trait triage
 genobridge-predict \
   --phenotype examples/rice_phenotype.csv \
-  --vcf       examples/rice_geno.vcf \
+  --vcf examples/rice_geno.vcf \
   --accession-col accession_id \
-  --output    results/ \
-  --no-outlier-removal
+  --output results/ \
+  --no-outlier-removal \
+  --max-missing-frac 0.31
+```
 
-# Step 2 — mixed-model GWAS on the traits that passed the gate
+The rice benchmark uses `0.31` to retain a phenotype with slightly more than 30% missing observations. For general analyses, the default `0.30` threshold is recommended.
+
+### Step 2: mixed-model GWAS
+
+```bash
 genobridge-gwas \
-  --label     rice \
+  --label rice \
   --phenotype examples/rice_phenotype.csv \
-  --vcf       examples/rice_geno.vcf \
-  --gff       examples/rice_genes.gff3 \
+  --vcf examples/rice_geno.vcf \
+  --gff examples/rice_genes.gff3 \
   --ml-results results/phenotype_prediction_results.csv \
-  --output    results/gwas/
+  --output results/gwas/
 ```
-
-Results appear in `results/` (prediction) and `results/gwas/` (associations,
-figures, and per-trait significant-hit tables).
 
 ---
 
-## Tool 1 — genomic prediction (`genobridge-predict`)
+## Tool 1: genomic prediction
 
-Trains and evaluates prediction models per trait and writes a per-trait accuracy
-table used as the GWAS gate.
-
+```bash
+genobridge-predict \
+  --phenotype FILE \
+  --vcf FILE \
+  [options]
 ```
-genobridge-predict --phenotype FILE --vcf FILE [options]
+
+| Argument               |        Default | Description                                  |
+| ---------------------- | -------------: | -------------------------------------------- |
+| `--phenotype`          |       required | Phenotype CSV                                |
+| `--vcf`                |       required | Genotype VCF                                 |
+| `--accession-col`      | `accession_id` | Accession identifier column                  |
+| `--exclude-cols`       | `replicate_id` | Non-phenotype columns to exclude             |
+| `--output`             |     `results/` | Output directory                             |
+| `--no-outlier-removal` |            off | Disable per-trait outlier removal            |
+| `--max-missing-frac`   |         `0.30` | Maximum permitted phenotype missing fraction |
+| `--n-components`       |      automatic | Override the number of PCA components        |
+| `--test-size`          |      automatic | Override the test-set fraction               |
+| `--force-regime`       |          unset | Advanced sample-size regime override         |
+
+Traits exceeding `--max-missing-frac` are excluded and recorded in:
+
+```text
+dropped_traits_report.csv
 ```
 
-| Argument | Default | Description |
-|---|---|---|
-| `--phenotype` | *(required)* | Phenotype CSV (accession column + trait columns) |
-| `--vcf` | *(required)* | Genotype VCF |
-| `--accession-col` | `accession_id` | Name of the accession-ID column |
-| `--exclude-cols` | `replicate_id` | Non-trait columns to ignore |
-| `--output` | `results` | Output directory |
-| `--no-outlier-removal` | off | **Recommended for multi-trait data.** Disables per-trait |z|>3 outlier removal, which can drop many accessions across many traits |
-| `--max-missing-frac` | `0.30` | Traits with more missingness than this are dropped and reported, not imputed (imputing high-missing traits fabricates data) |
-| `--n-components` | auto | PCA components (default set by regime) |
-| `--test-size` | auto | Held-out test fraction (default set by regime) |
-| `--force-regime` | *(unset)* | **Advanced/analysis only.** Overrides automatic regime selection; normal users leave this unset |
+The value must be supplied as a fraction:
 
-> **Tip:** for datasets with many traits (e.g. multi-environment yield trials),
-> use `--no-outlier-removal`. Per-trait outlier filtering across dozens of
-> heterogeneous traits can remove a large fraction of accessions.
+```bash
+--max-missing-frac 0.30
+```
+
+Valid examples include:
+
+```text
+0.10 = 10%
+0.30 = 30%
+0.31 = 31%
+0.50 = 50%
+```
+
+Using `--max-missing-frac 1` permits traits with up to 100% missingness and is not recommended for normal analysis.
 
 ---
 
-## Tool 2 — mixed-model GWAS (`genobridge-gwas`)
+## Tool 2: mixed-model GWAS
 
-Runs a kinship linear mixed-model GWAS (GEMMA) for gated traits and annotates
-hits to nearby genes.
-
+```bash
+genobridge-gwas \
+  --phenotype FILE \
+  --vcf FILE \
+  --gff FILE \
+  [options]
 ```
-python genobridge-gwas --phenotype FILE --vcf FILE --gff FILE [options]
+
+| Argument             |         Default | Description                                      |
+| -------------------- | --------------: | ------------------------------------------------ |
+| `--phenotype`        |        required | Phenotype CSV                                    |
+| `--vcf`              |        required | Genotype VCF                                     |
+| `--gff`              |        required | Gene annotation in GFF3 format                   |
+| `--ml-results`       |            none | Prediction results used for trait gating         |
+| `--gate`             |          `0.30` | Minimum prediction correlation required for GWAS |
+| `--gene-function`    |            none | Optional `gene_id,function` CSV                  |
+| `--accession-col`    |  `accession_id` | Accession identifier column                      |
+| `--exclude-cols`     |  `replicate_id` | Non-phenotype columns                            |
+| `--maf`              |          `0.05` | Minor-allele-frequency threshold                 |
+| `--geno-missing`     |          `0.10` | Per-marker missingness threshold                 |
+| `--bonferroni-alpha` | program default | Bonferroni significance level                    |
+| `--suggestive`       | program default | Suggestive threshold setting                     |
+| `--label`            |        optional | Cosmetic run label                               |
+| `--output`           | program default | GWAS output directory                            |
+
+Set the gate to zero to analyze all traits:
+
+```bash
+--gate 0
 ```
-
-| Argument | Default | Description |
-|---|---|---|
-| `--phenotype` | *(required)* | Phenotype CSV (same format as Tool 1) |
-| `--vcf` | *(required)* | Genotype VCF |
-| `--gff` | *(required)* | Gene annotation (GFF3) for nearest-gene labeling |
-| `--ml-results` | *(none)* | Prediction results CSV from Tool 1; enables the gate |
-| `--gate` | `0.30` | Predictability threshold; traits with best *r* ≥ this go to GWAS. Set `0` to run all traits |
-| `--gene-function` | *(none)* | Optional `gene_id,function` CSV to add/override gene functions (GFF `Note=`/`description=` used automatically otherwise) |
-| `--accession-col` | `accession_id` | Accession-ID column name |
-| `--maf` | `0.05` | Minor-allele-frequency filter |
-| `--geno-missing` | `0.10` | Per-SNP missingness filter |
-| `--label` | `gwas` | Cosmetic label for the report/figures |
-| `--output` | `gwas_gemma_out` | Output directory |
-
-**What it does per run:** converts the VCF to PLINK binary (MAF/missingness
-filtered), builds a centered genomic relatedness matrix, fits a mixed-model
-association test per gated trait, annotates significant SNPs to the nearest
-gene, and reports genomic inflation (λ) for each trait.
 
 ---
 
 ## Input formats
 
-**Phenotype CSV** — one accession-ID column plus one column per trait. Missing
-values blank or `NA`.
+### Phenotype CSV
 
-```
+The phenotype file must contain one accession identifier column and one or more phenotype columns.
+
+```csv
 accession_id,Brix,Amylose,Plant_height
 S001,18.2,22.1,95
 S002,17.5,,102
 S003,,20.8,88
 ```
 
-**Genotype VCF** — standard VCF (bgzipped or plain). Sample IDs in the VCF header
-must match the `accession_id` values in the phenotype CSV. Multi-allelic sites
-are filtered automatically; only biallelic SNPs are used.
+Missing values may be blank or represented as `NA`.
 
-**GFF3** (GWAS only) — standard gene annotation. Functional descriptions are read
-from `Note=`/`description=`/`product=` attributes when present.
+### Genotype VCF
 
-**Optional gene-function CSV** — `gene_id,function`, to supply or override
-functional labels for annotated genes.
+A standard plain-text or compressed VCF may be used. VCF sample identifiers must correspond to phenotype accession identifiers.
 
----
+Only biallelic SNPs are used for prediction and GWAS preprocessing.
 
-## Output files
+### GFF3 annotation
 
-**Prediction (`results/`)**
-- `phenotype_prediction_results.csv` — per trait: Pearson *r*, Spearman ρ, RMSE,
-  CV-R² for each model, plus the CV-selected best model and its metrics. This is
-  the file passed to the GWAS gate.
-- `predictions.csv` — observed vs predicted values on the held-out test set.
+The GWAS module requires a gene annotation file for nearest-gene assignment.
 
-**GWAS (`results/gwas/`)**
-- `gwas_summary.csv` — per gated trait: λ, and Bonferroni/suggestive hit counts.
-- `assoc/<trait>.sig.csv` — significant SNPs with clear column names, sorted by
-  significance: `Chromosome, SNP_ID, Position_bp, Effect_allele, Ref_allele,
-  Allele_freq, Effect_size, SE, P_value, Neg_log10_P, Lambda_REML, Nearest_gene,
-  Distance_bp, Gene_function`.
-- `assoc/<trait>.assoc.txt` — full raw GEMMA output (complete record).
-- `figures/` — Manhattan and QQ plots per trait (QQ titles show λ), plus a
-  per-trait λ comparison figure.
+Functional descriptions may be extracted from attributes such as:
 
----
-
-## Worked example
-
-The `examples/` directory contains a small demonstration dataset. From the repo
-root:
-
-```bash
-# prediction
-python genobridge_v1.py \
-  --phenotype examples/rice_phenotype.csv \
-  --vcf examples/rice_geno.vcf \
-  --output example_results/ --no-outlier-removal
-
-# GWAS on gated traits
-python genobridge_gwas_v1.py --label example \
-  --phenotype examples/rice_phenotype.csv \
-  --vcf examples/rice_geno.vcf \
-  --gff examples/rice_genes.gff3 \
-  --ml-results example_results/phenotype_prediction_results.csv \
-  --output example_results/gwas/
+```text
+Note=
+description=
+product=
 ```
 
-Expected: a prediction table with all four metrics, and — for traits that pass
-the gate — Manhattan/QQ plots with λ near 1.0 and annotated significant SNPs.
+### Optional gene-function table
+
+An optional CSV can provide or override gene descriptions:
+
+```csv
+gene_id,function
+Gene001,Transcription factor
+Gene002,Disease resistance protein
+```
 
 ---
 
-## Dependencies
+## Prediction outputs
 
-- **Python ≥ 3.8** with numpy, pandas, scipy, scikit-learn, xgboost, matplotlib
-- **GEMMA ≥ 0.98.5** and **PLINK2** on the system PATH (GWAS module)
+The prediction output directory contains files including:
 
-All installable with `conda env create -f environment.yml`.
+### `phenotype_prediction_results.csv`
 
----
+Per-trait model evaluation results, including:
 
-## License and citation
+* Pearson correlation
+* Spearman correlation
+* Root mean squared error
+* Cross-validated R²
+* Best-performing model
+* Best prediction correlation
 
-GenoBridge is released under the **Apache License 2.0** (see `LICENSE`). You may
-use, modify, and redistribute it provided you retain the attribution notices
-(`NOTICE`) and, for academic use, cite the publication below. Modified versions
-must state that they were changed and preserve the original attribution.
+This file is supplied to `genobridge-gwas` using `--ml-results`.
 
-**If you use GenoBridge in academic work, please cite:**
+### `predictions.csv`
 
-> Singh, N.P., Mendu, V. (2026). *GenoBridge: an automated
-> sample-size-adaptive machine-learning pipeline for genomic prediction and
-> ML-gated GWAS.* Plant Methods. DOI: *[waiting on acceptance]*
+Observed and predicted phenotype values for the held-out test samples.
 
-and the archived release (Zenodo DOI: *[waiting on acceptance]*). A
-machine-readable citation is in `CITATION.cff`.
+### `dropped_traits_report.csv`
 
----
+Traits excluded because their missing-data fraction exceeded `--max-missing-frac`.
 
-## FAQ / troubleshooting
+### Figures
 
-**"gemma: command not found" / "plink2: command not found"** — the external
-tools aren't on your PATH. Install with `conda install -c bioconda gemma plink2`
-and re-activate the environment.
-
-**Wheat-scale / large VCFs run out of memory in the prediction step** — the
-prediction pipeline loads genotypes into memory. For very large panels,
-LD-prune the VCF first (e.g. `plink2 --indep-pairwise 100 10 0.2`) and run
-prediction on the pruned set; the GWAS step streams the full VCF and is
-unaffected.
-
-**All my GWAS p-values look null / λ ≈ 0** — ensure the output directory is
-fresh (delete stale `geno.*` files) and that phenotype accession IDs exactly
-match the VCF sample IDs. A near-zero overlap silently produces null results.
-
-**Which traits went to GWAS?** — only those with best CV-selected *r* ≥ `--gate`
-(default 0.30). Use `--gate 0` to run all traits regardless.
+Prediction figures include model-comparison plots, prediction correlations, and observed-versus-predicted plots.
 
 ---
 
-*.*
+## GWAS outputs
+
+The GWAS output directory contains:
+
+* `gwas_summary.csv`
+* Complete GEMMA association output
+* Significant and suggestive SNP tables
+* Manhattan plots
+* QQ plots
+* Per-trait genomic inflation estimates
+* Nearest-gene annotation
+* Optional gene-function annotation
+
+A significant-SNP table may contain:
+
+```text
+Chromosome
+SNP_ID
+Position_bp
+Effect_allele
+Ref_allele
+Allele_freq
+Effect_size
+SE
+P_value
+Neg_log10_P
+Lambda_REML
+Nearest_gene
+Distance_bp
+Gene_function
+```
+
+---
+
+## Runtime dependencies
+
+Python dependencies are installed automatically with the wheel:
+
+* NumPy
+* pandas
+* SciPy
+* scikit-learn
+* Matplotlib
+* XGBoost
+* scikit-allel
+
+External programs must be installed separately:
+
+* GEMMA
+* PLINK2
+
+---
+
+## Platform availability
+
+The current release file:
+
+```text
+genobridge-1.0.0-cp312-cp312-linux_x86_64.whl
+```
+
+is compatible only with:
+
+* CPython 3.12
+* Linux
+* x86_64 processors
+
+Additional wheels are required for other Python versions, operating systems, or CPU architectures.
+
+---
+
+## License
+
+GenoBridge is proprietary research software.
+
+Copyright © 2026 Nagendra Pratap Singh. All rights reserved.
+
+The software is distributed in compiled form for authorized use. The original implementation source is not distributed. Redistribution, modification, sublicensing, reverse engineering, and commercial use are prohibited unless expressly authorized in writing by the copyright holder.
+
+The final license should be reviewed and approved according to applicable institutional intellectual-property requirements.
+
+---
+
+## Citation
+
+Users of GenoBridge in academic research should cite:
+
+> Singh, N. P., and Mendu, V. (2026). GenoBridge: an automated sample-size-adaptive machine-learning framework for genomic prediction and predictability-gated genome-wide association analysis. Publication details pending.
+
+A machine-readable citation is provided in:
+
+```text
+CITATION.cff
+```
+
+The archived software release DOI will be added after release deposition.
+
+---
+
+## Troubleshooting
+
+### `gemma: command not found`
+
+Install GEMMA and make sure it is available through `PATH`:
+
+```bash
+conda install -c conda-forge -c bioconda gemma=0.98.5
+```
+
+### `plink2: command not found`
+
+Install PLINK2:
+
+```bash
+conda install -c conda-forge -c bioconda plink2
+```
+
+### `--max-missing-frac: expected one argument`
+
+The option requires a numeric value:
+
+```bash
+--max-missing-frac 0.30
+```
+
+### Wheel is not supported on this platform
+
+Confirm that the environment uses CPython 3.12 on Linux x86_64:
+
+```bash
+python --version
+uname -m
+```
+
+### Large VCF consumes too much memory
+
+LD-prune the VCF before prediction:
+
+```bash
+plink2 \
+  --vcf input.vcf \
+  --indep-pairwise 100 10 0.2 \
+  --out pruning
+```
+
+The full VCF may still be used in the GWAS stage.
+
+---
+
+## Release integrity
+
+A SHA-256 checksum is provided for each wheel release.
+
+Verify a downloaded wheel with:
+
+```bash
+sha256sum genobridge-1.0.0-cp312-cp312-linux_x86_64.whl
+```
