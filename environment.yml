@@ -1,0 +1,25 @@
+# GenoBridge — full environment (Python packages + external GWAS tools)
+# One-command setup:
+#     conda env create -f environment.yml
+#     conda activate genobridge
+#
+# This installs BOTH the Python dependencies AND the external command-line tools
+# (GEMMA, PLINK2) that the GWAS module requires, so a reviewer can reproduce the
+# full pipeline in a single step.
+
+name: genobridge
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  # ---- Python ----
+  - python>=3.8
+  - numpy>=1.21
+  - pandas>=1.3
+  - scipy>=1.7
+  - scikit-learn>=1.0
+  - xgboost>=1.5
+  - matplotlib>=3.4
+  # ---- external tools (GWAS module) ----
+  - gemma>=0.98.5          # kinship linear mixed-model GWAS engine
+  - plink2                 # VCF -> bed/bim/fam conversion + QC filtering
