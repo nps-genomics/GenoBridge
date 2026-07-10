@@ -103,7 +103,7 @@ Python packages: numpy, pandas, scipy, scikit-learn, xgboost, matplotlib.
 
 ```bash
 # Step 1 — prediction + trait triage
-python genobridge_v1.py \
+genobridge-predict \
   --phenotype examples/rice_phenotype.csv \
   --vcf       examples/rice_geno.vcf \
   --accession-col accession_id \
@@ -111,7 +111,7 @@ python genobridge_v1.py \
   --no-outlier-removal
 
 # Step 2 — mixed-model GWAS on the traits that passed the gate
-python genobridge_gwas_v1.py \
+genobridge-gwas \
   --label     rice \
   --phenotype examples/rice_phenotype.csv \
   --vcf       examples/rice_geno.vcf \
@@ -125,13 +125,13 @@ figures, and per-trait significant-hit tables).
 
 ---
 
-## Tool 1 — genomic prediction (`genobridge_v1.py`)
+## Tool 1 — genomic prediction (`genobridge-predict`)
 
 Trains and evaluates prediction models per trait and writes a per-trait accuracy
 table used as the GWAS gate.
 
 ```
-python genobridge_v1.py --phenotype FILE --vcf FILE [options]
+genobridge-predict --phenotype FILE --vcf FILE [options]
 ```
 
 | Argument | Default | Description |
@@ -153,13 +153,13 @@ python genobridge_v1.py --phenotype FILE --vcf FILE [options]
 
 ---
 
-## Tool 2 — mixed-model GWAS (`genobridge_gwas_v1.py`)
+## Tool 2 — mixed-model GWAS (`genobridge-gwas`)
 
 Runs a kinship linear mixed-model GWAS (GEMMA) for gated traits and annotates
 hits to nearby genes.
 
 ```
-python genobridge_gwas_v1.py --phenotype FILE --vcf FILE --gff FILE [options]
+python genobridge-gwas --phenotype FILE --vcf FILE --gff FILE [options]
 ```
 
 | Argument | Default | Description |
