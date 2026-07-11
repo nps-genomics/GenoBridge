@@ -1,5 +1,11 @@
 # GenoBridge
 
+[![GitHub release](https://img.shields.io/github/v/release/nps-genomics/GenoBridge)](https://github.com/nps-genomics/GenoBridge/releases)
+[![Conda version](https://img.shields.io/conda/vn/nps-genomics/genobridge)](https://anaconda.org/nps-genomics/genobridge)
+[![Platform](https://img.shields.io/badge/platform-linux--64-blue)](https://anaconda.org/nps-genomics/genobridge)
+[![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
+
 **A sample-size-adaptive machine-learning and mixed-model GWAS framework for genotype-to-phenotype analysis.**
 
 GenoBridge integrates genomic prediction with a predictability-gated genome-wide association study workflow. It:
@@ -12,17 +18,19 @@ GenoBridge integrates genomic prediction with a predictability-gated genome-wide
 
 ## Software distribution
 
-GenoBridge is distributed as a **compiled Python wheel**.
+GenoBridge is distributed in two compiled formats:
 
-* The original Python and Cython implementation source is not distributed.
-* Prediction and GWAS modules are installed as compiled Linux extension modules.
-* The current release supports:
+* A Conda package hosted in the [`nps-genomics`](https://anaconda.org/nps-genomics/genobridge) channel.
+* A CPython wheel attached to the [GitHub v1.0.1 release](https://github.com/nps-genomics/GenoBridge/releases/tag/v1.0.1).
 
-  * Linux x86_64
-  * CPython 3.12
-* GEMMA and PLINK2 are required external programs.
+The prediction and GWAS implementations are installed as compiled Linux extension modules. The original Python and Cython implementation source is not included in the public repository.
 
-The public GitHub repository contains documentation, example input formats, citation information, and release files. It does not contain the private implementation source.
+The current release supports:
+
+* Linux x86_64 (`linux-64`)
+* CPython 3.12
+
+The public repository contains installation instructions, input and output specifications, command-line documentation, release information, and licensing material.
 
 ---
 
@@ -55,51 +63,69 @@ The GWAS module uses PLINK2 for genotype preprocessing and GEMMA for kinship-adj
 
 ### System compatibility
 
-The current GenoBridge wheel requires:
+GenoBridge v1.0.1 requires:
 
 * Linux x86_64
 * Python 3.12
 * GEMMA 0.98.5 or later
 * PLINK2
 
-### Recommended installation
+### Recommended: install from Conda
 
-Create a Conda environment containing Python, GEMMA, and PLINK2:
+The Conda package installs GenoBridge and its declared runtime dependencies, including GEMMA and PLINK2.
 
 ```bash
-conda create -y -n genobridge \
+conda create -n genobridge \
+  --override-channels \
+  -c nps-genomics \
   -c conda-forge \
   -c bioconda \
-  python=3.12 \
-  pip \
-  gemma=0.98.5 \
-  plink2
+  genobridge=1.0.1 \
+  -y
 
 conda activate genobridge
-```
-
-Install the compiled GenoBridge wheel:
-
-```bash
-python3.12 -m pip install \
-  https://github.com/nps-genomics/GenoBridge/releases/download/v1.0.1/genobridge-1.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
-
-```
-
-Alternatively, download the wheel from the GitHub Releases page and install it locally:
-
-```bash
-python -m pip install \
-  genobridge-1.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
 ```
 
 Verify the installation:
 
 ```bash
+python -c "import genobridge; print(genobridge.__version__)"
 genobridge-predict --help
 genobridge-gwas --help
-plink2 --version
 gemma -h
+plink2 --version
+```
+
+### Alternative: install the compiled wheel
+
+First create an environment containing Python 3.12, GEMMA, and PLINK2:
+
+```bash
+conda create -n genobridge-wheel \
+  --override-channels \
+  -c conda-forge \
+  -c bioconda \
+  python=3.12 \
+  pip \
+  gemma=0.98.5 \
+  plink2 \
+  -y
+
+conda activate genobridge-wheel
+```
+
+Install the v1.0.1 wheel directly from GitHub:
+
+```bash
+python -m pip install \
+  https://github.com/nps-genomics/GenoBridge/releases/download/v1.0.1/genobridge-1.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
+```
+
+Alternatively, download the wheel and install it locally:
+
+```bash
+python -m pip install \
+  genobridge-1.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
 ```
 
 ---
@@ -110,8 +136,8 @@ gemma -h
 
 ```bash
 genobridge-predict \
-  --phenotype examples/rice_phenotype.csv \
-  --vcf examples/rice_geno.vcf \
+  --phenotype path/to/phenotype.csv \
+  --vcf path/to/genotypes.vcf \
   --accession-col accession_id \
   --output results/ \
   --no-outlier-removal \
@@ -125,9 +151,9 @@ The rice benchmark uses `0.31` to retain a phenotype with slightly more than 30%
 ```bash
 genobridge-gwas \
   --label rice \
-  --phenotype examples/rice_phenotype.csv \
-  --vcf examples/rice_geno.vcf \
-  --gff examples/rice_genes.gff3 \
+  --phenotype path/to/phenotype.csv \
+  --vcf path/to/genotypes.vcf \
+  --gff path/to/genes.gff3 \
   --ml-results results/phenotype_prediction_results.csv \
   --output results/gwas/
 ```
@@ -328,7 +354,15 @@ Gene_function
 
 ## Runtime dependencies
 
-Python dependencies are installed automatically with the wheel:
+### Conda installation
+
+The Conda package resolves the declared Python and external runtime dependencies automatically from the specified channels.
+
+### Wheel installation
+
+Python dependencies are installed by `pip`. GEMMA and PLINK2 must be installed separately and available through `PATH`.
+
+Principal Python dependencies include:
 
 * NumPy
 * pandas
@@ -338,7 +372,7 @@ Python dependencies are installed automatically with the wheel:
 * XGBoost
 * scikit-allel
 
-External programs must be installed separately:
+External programs:
 
 * GEMMA
 * PLINK2
@@ -347,31 +381,41 @@ External programs must be installed separately:
 
 ## Platform availability
 
-The current release file:
+The current wheel is:
 
 ```text
-genobridge-1.0.0-cp312-cp312-linux_x86_64.whl
+genobridge-1.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
 ```
 
-is compatible only with:
+It is compatible with:
 
 * CPython 3.12
 * Linux
 * x86_64 processors
 
-Additional wheels are required for other Python versions, operating systems, or CPU architectures.
+The current Conda package is:
+
+```text
+genobridge-1.0.1-py312_0
+```
+
+and is available for:
+
+```text
+linux-64
+```
+
+Additional builds are required for other Python versions, operating systems, and CPU architectures.
 
 ---
 
 ## License
 
-GenoBridge is proprietary research software.
+GenoBridge is licensed under the **Apache License 2.0**.
 
-Copyright © 2026 Nagendra Pratap Singh. All rights reserved.
+The distributed prediction and GWAS modules are compiled extension modules, and the original implementation source is not included in this public repository. Use and redistribution remain subject to the terms in [`LICENSE`](LICENSE).
 
-The software is distributed in compiled form for authorized use. The original implementation source is not distributed. Redistribution, modification, sublicensing, reverse engineering, and commercial use are prohibited unless expressly authorized in writing by the copyright holder.
-
-The final license should be reviewed and approved according to applicable institutional intellectual-property requirements.
+Copyright © 2026 Nagendra Pratap Singh.
 
 ---
 
@@ -381,13 +425,7 @@ Users of GenoBridge in academic research should cite:
 
 > Singh, N. P., and Mendu, V. (2026). GenoBridge: an automated sample-size-adaptive machine-learning framework for genomic prediction and predictability-gated genome-wide association analysis. Publication details pending.
 
-A machine-readable citation is provided in:
-
-```text
-CITATION.cff
-```
-
-The archived software release DOI will be added after release deposition.
+The citation should be updated when the manuscript and archived software DOI become available.
 
 ---
 
@@ -443,10 +481,25 @@ The full VCF may still be used in the GWAS stage.
 
 ## Release integrity
 
-A SHA-256 checksum is provided for each wheel release.
+The SHA-256 checksum for the v1.0.1 wheel is:
+
+```text
+869c9163653cdeb99d09543806dfe92ca21d4e3a9b32dbc17f4d051eb4dd7110
+```
 
 Verify a downloaded wheel with:
 
 ```bash
-sha256sum genobridge-1.0.0-cp312-cp312-linux_x86_64.whl
+sha256sum \
+  genobridge-1.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
 ```
+
+The calculated checksum must match the value above.
+
+---
+
+## Links
+
+* GitHub repository: <https://github.com/nps-genomics/GenoBridge>
+* GitHub releases: <https://github.com/nps-genomics/GenoBridge/releases>
+* Conda package: <https://anaconda.org/nps-genomics/genobridge>
