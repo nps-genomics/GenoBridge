@@ -455,6 +455,10 @@ The option requires a numeric value:
 ```bash
 --max-missing-frac 0.30
 ```
+
+### GWAS halts with "Only X% of genotype samples matched"
+This occurs when the VCF contains more samples than your phenotype file (e.g. a full 1001 Genomes panel with a subset of phenotyped accessions). The safeguard halts because the match rate looks low, even though your accessions matched correctly. Subset the VCF to your phenotyped accessions first.
+
 ### GenoBridge is incompatible with the existing Python installation
 
 GenoBridge v1.0.1 is compiled for CPython 3.12. Installation into an
