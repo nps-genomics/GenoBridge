@@ -142,10 +142,10 @@ genobridge-predict \
   --accession-col accession_id \
   --output results/ \
   --no-outlier-removal \
-  --max-missing-frac 0.31
+  --max-missing-frac 0.30
 ```
 
-The rice benchmark uses `0.31` to retain a phenotype with slightly more than 30% missing observations. For general analyses, the default `0.30` threshold is recommended.
+For general analyses, the default `0.30` threshold is recommended.
 
 ### Step 2: mixed-model GWAS
 
