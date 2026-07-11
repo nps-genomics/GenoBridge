@@ -454,7 +454,16 @@ The option requires a numeric value:
 ```bash
 --max-missing-frac 0.30
 ```
+### GenoBridge is incompatible with the existing Python installation
 
+GenoBridge v1.0.1 is compiled for CPython 3.12. Installation into an
+environment using Python 3.10 or Python 3.11 will fail with an
+`UnsatisfiableError`.
+
+Check the active Python version:
+
+```bash
+python --version
 ### Wheel is not supported on this platform
 
 Confirm that the environment uses CPython 3.12 on Linux x86_64:
