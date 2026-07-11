@@ -415,7 +415,7 @@ GenoBridge is licensed under the **Apache License 2.0**.
 
 The distributed prediction and GWAS modules are compiled extension modules, and the original implementation source is not included in this public repository. Use and redistribution remain subject to the terms in [`LICENSE`](LICENSE).
 
-Copyright © 2026 Nagendra Pratap Singh.
+Copyright © 2026.
 
 ---
 
