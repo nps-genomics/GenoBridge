@@ -81,7 +81,8 @@ conda activate genobridge
 Install the compiled GenoBridge wheel:
 
 ```bash
-python -m pip install   https://github.com/nps-genomics/GenoBridge/releases/download/v1.0.0/ \ genobridge-1.0.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
+python3.12 -m pip install \
+  https://github.com/nps-genomics/GenoBridge/releases/download/v1.0.1/genobridge-1.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
 
 ```
 
@@ -89,7 +90,7 @@ Alternatively, download the wheel from the GitHub Releases page and install it l
 
 ```bash
 python -m pip install \
-  genobridge-1.0.0-cp312-cp312-linux_x86_64.whl
+  genobridge-1.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
 ```
 
 Verify the installation:
