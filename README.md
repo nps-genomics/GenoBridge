@@ -16,21 +16,6 @@ GenoBridge integrates genomic prediction with a predictability-gated genome-wide
 4. Runs kinship-adjusted mixed-model GWAS using GEMMA.
 5. Annotates significant associations to nearby genes.
 
-## Software distribution
-
-GenoBridge is distributed in two compiled formats:
-
-* A Conda package hosted in the [`nps-genomics`](https://anaconda.org/nps-genomics/genobridge) channel.
-* A CPython wheel attached to the [GitHub v1.0.1 release](https://github.com/nps-genomics/GenoBridge/releases/tag/v1.0.1).
-
-The prediction and GWAS implementations are installed as compiled Linux extension modules. The original Python and Cython implementation source is not included in the public repository.
-
-The current release supports:
-
-* Linux x86_64 (`linux-64`)
-* CPython 3.12
-
-The public repository contains installation instructions, input and output specifications, command-line documentation, release information, and licensing material.
 
 ---
 
@@ -127,7 +112,21 @@ Alternatively, download the wheel and install it locally:
 python -m pip install \
   genobridge-1.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
 ```
+## Software distribution
 
+GenoBridge is distributed in two compiled formats:
+
+* A Conda package hosted in the [`nps-genomics`](https://anaconda.org/nps-genomics/genobridge) channel.
+* A CPython wheel attached to the [GitHub v1.0.1 release](https://github.com/nps-genomics/GenoBridge/releases/tag/v1.0.1).
+
+The prediction and GWAS implementations are installed as compiled Linux extension modules. The original Python and Cython implementation source is not included in the public repository.
+
+The current release supports:
+
+* Linux x86_64 (`linux-64`)
+* CPython 3.12
+
+The public repository contains installation instructions, input and output specifications, command-line documentation, release information, and licensing material.
 ---
 
 ## Quick start
