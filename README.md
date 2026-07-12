@@ -24,7 +24,7 @@ GenoBridge integrates genomic prediction with a predictability-gated genome-wide
 ```text
 Phenotype CSV ┐
               ├── GenoBridge prediction
-Genotype VCF ┘         │
+Genotype VCF  ┘        │
                        ├── Per-trait prediction metrics
                        ├── Best model selection
                        └── Predictability gate
