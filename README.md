@@ -67,7 +67,6 @@ The public repository contains installation instructions, input and output speci
 
 GenoBridge v1.0.1 requires:
 
-* Linux x86_64
 * Python 3.12
 * GEMMA 0.98.5 or later
 * PLINK2
