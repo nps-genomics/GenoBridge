@@ -142,10 +142,10 @@ genobridge-predict \
   --accession-col accession_id \
   --output results/ \
   --no-outlier-removal \
-  --max-missing-frac 0.30
+  
 ```
 
-For general analyses, the default `0.30` threshold is recommended.
+For general analyses, the default --max-missing-frac 0.30 threshold is recommended.
 
 ### Step 2: mixed-model GWAS
 
