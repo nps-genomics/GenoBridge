@@ -124,6 +124,26 @@ The wheel installation is intended only for users who already understand
 Python environments and compiled wheel compatibility. The wheel requires
 CPython 3.12 on Linux x86_64.
 
+#### Where to download the wheel
+
+Open the GenoBridge v1.0.1 release page:
+
+<https://github.com/nps-genomics/GenoBridge/releases/tag/v1.0.1>
+
+On the release page, expand **Assets** and download:
+
+```text
+genobridge-1.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
+```
+
+Direct wheel download:
+
+<https://github.com/nps-genomics/GenoBridge/releases/download/v1.0.1/genobridge-1.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl>
+
+Do not download GitHub's automatically generated **Source code (zip)** or
+**Source code (tar.gz)** files for installation. Those archives contain the
+public repository contents, not the compiled GenoBridge package.
+
 Create a clean Python 3.12 environment:
 
 ```bash
