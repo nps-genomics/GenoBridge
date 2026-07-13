@@ -8,6 +8,8 @@
 
 **A sample-size-adaptive machine-learning and mixed-model GWAS framework for genotype-to-phenotype analysis.**
 
+> **Recommended installation:** use the Conda command in the [Installation](#installation) section. The GitHub wheel is provided only as an advanced fallback.
+
 GenoBridge integrates genomic prediction with a predictability-gated genome-wide association study workflow. It:
 
 1. Automatically adjusts model complexity according to sample size.
@@ -45,35 +47,37 @@ The GWAS module uses PLINK2 for genotype preprocessing and GEMMA for kinship-adj
 ---
 ## Software distribution
 
-GenoBridge is distributed in two compiled formats:
+GenoBridge v1.0.1 is distributed for **Linux x86_64** systems.
 
-* A Conda package hosted in the [`nps-genomics`](https://anaconda.org/nps-genomics/genobridge) channel.
-* A CPython wheel attached to the [GitHub v1.0.1 release](https://github.com/nps-genomics/GenoBridge/releases/tag/v1.0.1).
+The recommended installation method is the public Conda package hosted in the
+[`nps-genomics`](https://anaconda.org/nps-genomics/genobridge) channel. This
+method creates a clean Python 3.12 environment and installs GenoBridge together
+with GEMMA, PLINK2, and all required Python dependencies.
 
-The prediction and GWAS implementations are installed as compiled Linux extension modules. The original Python and Cython implementation source is not included in the public repository.
+A compiled CPython 3.12 wheel is also provided through GitHub Releases for
+advanced users who need a manual installation. The wheel must be installed
+inside a Python 3.12 Linux x86_64 environment.
 
-The current release supports:
-
-* Linux x86_64 (`linux-64`)
-* CPython 3.12
-
-The public repository contains installation instructions, input and output specifications, command-line documentation, release information, and licensing material.
+The prediction and GWAS implementations are installed as compiled Linux
+extension modules. The original Python and Cython implementation source is not
+included in the public repository.
 
 ---
 
 ## Installation
 
-### System compatibility
+### Supported systems
 
-GenoBridge v1.0.1 requires:
+GenoBridge v1.0.1 currently supports:
 
-* Python 3.12
-* GEMMA 0.98.5 or later
-* PLINK2
+* Linux x86_64 (`linux-64`)
+* CPython 3.12
+* glibc 2.17 or newer
 
-### Recommended: install from Conda
+### Recommended installation
 
-The Conda package installs GenoBridge and its declared runtime dependencies, including GEMMA and PLINK2.
+Create a new Conda environment. Do not install GenoBridge into an existing
+Python 3.6, 3.10, or 3.11 environment.
 
 ```bash
 conda create -n genobridge \
@@ -87,21 +91,40 @@ conda create -n genobridge \
 conda activate genobridge
 ```
 
+This command installs:
+
+* GenoBridge 1.0.1
+* Python 3.12
+* GEMMA 0.98.5
+* PLINK2
+* Required Python libraries
+
 Verify the installation:
 
 ```bash
-python -c "import genobridge; print(genobridge.__version__)"
+python -c "import genobridge; print('GenoBridge', genobridge.__version__)"
+
 genobridge-predict --help
 genobridge-gwas --help
 gemma -h
 plink2 --version
 ```
 
-### Alternative: install the compiled wheel
+Expected GenoBridge version:
 
+```text
+GenoBridge 1.0.1
+```
 
+### Advanced manual installation from the GitHub wheel
 
-First create an environment containing Python 3.12, GEMMA, and PLINK2:
+Most users should use the Conda installation above.
+
+The wheel installation is intended only for users who already understand
+Python environments and compiled wheel compatibility. The wheel requires
+CPython 3.12 on Linux x86_64.
+
+Create a clean Python 3.12 environment:
 
 ```bash
 conda create -n genobridge-wheel \
@@ -117,19 +140,30 @@ conda create -n genobridge-wheel \
 conda activate genobridge-wheel
 ```
 
-Install the v1.0.1 wheel directly from GitHub:
+Confirm the Python version before installing:
+
+```bash
+python --version
+uname -m
+```
+
+Expected:
+
+```text
+Python 3.12.x
+x86_64
+```
+
+Install the wheel:
 
 ```bash
 python -m pip install \
-  https://github.com/nps-genomics/GenoBridge/releases/download/v1.0.1/genobridge-1.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
+  "https://github.com/nps-genomics/GenoBridge/releases/download/v1.0.1/genobridge-1.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl"
 ```
 
-Alternatively, download the wheel and install it locally:
+Do not run this wheel command from `base` or from an environment using Python
+3.6, 3.10, or 3.11.
 
-```bash
-python -m pip install \
-  genobridge-1.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
-```
 ---
 
 ## Quick start
@@ -146,7 +180,7 @@ genobridge-predict \
   
 ```
 
-For general analyses, the default --max-missing-frac 0.30 threshold is recommended.
+For general analyses, the default `--max-missing-frac 0.30` threshold is recommended.
 
 ### Step 2: mixed-model GWAS
 
@@ -356,13 +390,8 @@ Gene_function
 
 ## Runtime dependencies
 
-### Conda installation
-
-The Conda package resolves the declared Python and external runtime dependencies automatically from the specified channels.
-
-### Wheel installation
-
-Python dependencies are installed by `pip`. GEMMA and PLINK2 must be installed separately and available through `PATH`.
+The recommended Conda installation resolves all declared dependencies
+automatically.
 
 Principal Python dependencies include:
 
@@ -376,8 +405,11 @@ Principal Python dependencies include:
 
 External programs:
 
-* GEMMA
+* GEMMA 0.98.5
 * PLINK2
+
+Manual wheel users must install GEMMA and PLINK2 separately and ensure that both
+programs are available through `PATH`.
 
 ---
 
@@ -433,9 +465,74 @@ The citation should be updated when the manuscript and archived software DOI bec
 
 ## Troubleshooting
 
+### `PackagesNotFoundError` or HTTP 404 during Conda installation
+
+First confirm that the public channel is reachable:
+
+```bash
+curl -I -L \
+  https://conda.anaconda.org/nps-genomics/linux-64/repodata.json
+```
+
+Then use the recommended installation command exactly as shown:
+
+```bash
+conda create -n genobridge \
+  --override-channels \
+  -c nps-genomics \
+  -c conda-forge \
+  -c bioconda \
+  genobridge=1.0.1 \
+  -y
+```
+
+An HTTP 404 commonly indicates an outdated Conda client, institutional mirror,
+proxy, malformed channel URL, or copied non-standard spaces. It does not mean
+that the public package is private.
+
+### GenoBridge is incompatible with the existing Python installation
+
+GenoBridge v1.0.1 is compiled for CPython 3.12. Installation into an
+environment using Python 3.6, 3.10, or 3.11 will fail with an
+`UnsatisfiableError`.
+
+Check the active Python version:
+
+```bash
+python --version
+```
+
+Create a separate GenoBridge environment instead of upgrading the Python
+version of an existing analysis environment.
+
+### Wheel is not supported on this platform
+
+The wheel requires:
+
+* CPython 3.12
+* Linux
+* x86_64 architecture
+
+Check the active environment:
+
+```bash
+command -v python
+python --version
+uname -m
+```
+
+The Python version must be `3.12.x`, and the architecture must be `x86_64`.
+
 ### `gemma: command not found`
 
-Install GEMMA and make sure it is available through `PATH`:
+Activate the recommended environment:
+
+```bash
+conda activate genobridge
+command -v gemma
+```
+
+Manual wheel users can install GEMMA with:
 
 ```bash
 conda install -c conda-forge -c bioconda gemma=0.98.5
@@ -443,7 +540,14 @@ conda install -c conda-forge -c bioconda gemma=0.98.5
 
 ### `plink2: command not found`
 
-Install PLINK2:
+Activate the recommended environment:
+
+```bash
+conda activate genobridge
+command -v plink2
+```
+
+Manual wheel users can install PLINK2 with:
 
 ```bash
 conda install -c conda-forge -c bioconda plink2
@@ -451,33 +555,19 @@ conda install -c conda-forge -c bioconda plink2
 
 ### `--max-missing-frac: expected one argument`
 
-The option requires a numeric value:
+The option requires a numeric fraction:
 
 ```bash
 --max-missing-frac 0.30
 ```
 
-### GWAS halts with "Only X% of genotype samples matched"
-This occurs when the VCF contains more samples than your phenotype file (e.g. a full 1001 Genomes panel with a subset of phenotyped accessions). The safeguard halts because the match rate looks low, even though your accessions matched correctly. Subset the VCF to your phenotyped accessions first.
+### GWAS halts with `Only X% of genotype samples matched`
 
-### GenoBridge is incompatible with the existing Python installation
+This occurs when the VCF contains many more samples than the phenotype file.
+For example, a complete diversity panel may contain hundreds or thousands of
+samples, whereas phenotypes may be available for only a subset.
 
-GenoBridge v1.0.1 is compiled for CPython 3.12. Installation into an
-environment using Python 3.10 or Python 3.11 will fail with an
-`UnsatisfiableError`.
-
-Check the active Python version:
-
-```bash
-python --version
-### Wheel is not supported on this platform
-
-Confirm that the environment uses CPython 3.12 on Linux x86_64:
-
-```bash
-python --version
-uname -m
-```
+Subset the VCF to the phenotyped accessions before running GenoBridge.
 
 ### Large VCF consumes too much memory
 
@@ -490,7 +580,7 @@ plink2 \
   --out pruning
 ```
 
-The full VCF may still be used in the GWAS stage.
+The full VCF may still be used during the GWAS stage.
 
 ---
 
