@@ -59,8 +59,7 @@ advanced users who need a manual installation. The wheel must be installed
 inside a Python 3.12 Linux x86_64 environment.
 
 The prediction and GWAS implementations are installed as compiled Linux
-extension modules. The original Python and Cython implementation source is not
-included in the public repository.
+extension modules. 
 
 ---
 
