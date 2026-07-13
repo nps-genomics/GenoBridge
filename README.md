@@ -99,12 +99,7 @@ plink2 --version
 
 ### Alternative: install the compiled wheel
 
-Conda Installation
-To install this package, run one of the following:
 
-```bash
-conda install nps-genomics::genobridge
-```
 
 First create an environment containing Python 3.12, GEMMA, and PLINK2:
 
