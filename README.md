@@ -59,7 +59,8 @@ advanced users who need a manual installation. The wheel must be installed
 inside a Python 3.12 Linux x86_64 environment.
 
 The prediction and GWAS implementations are installed as compiled Linux
-extension modules. 
+extension modules. The original Python and Cython implementation source is not
+included in the public repository.
 
 ---
 
@@ -580,13 +581,127 @@ The option requires a numeric fraction:
 --max-missing-frac 0.30
 ```
 
-### GWAS halts with `Only X% of genotype samples matched`
+### GWAS halts with `Only X% of genotype samples matched` or analyzes too few SNPs
 
-This occurs when the VCF contains many more samples than the phenotype file.
-For example, a complete diversity panel may contain hundreds or thousands of
-samples, whereas phenotypes may be available for only a subset.
+Two different problems can produce an incorrect or interrupted GWAS run.
 
-Subset the VCF to the phenotyped accessions before running GenoBridge.
+#### 1. The LD-pruned prediction VCF was supplied to GWAS
+
+The prediction and GWAS stages may use different marker sets. An LD-pruned VCF
+can be used for genomic prediction to reduce dimensionality and computational
+cost, but GWAS should normally use the full quality-controlled marker set.
+
+Do not run GWAS on the pruned prediction VCF unless that is the intended
+analysis. Using a heavily pruned file can substantially reduce genomic
+coverage and association power.
+
+For example:
+
+```bash
+# Prediction: LD-pruned markers
+genobridge-predict \
+  --phenotype phenotype.csv \
+  --vcf genotype_pruned.vcf \
+  --output results/prediction/
+
+# GWAS: full quality-controlled markers
+genobridge-gwas \
+  --phenotype phenotype.csv \
+  --vcf genotype_full_matched.vcf.gz \
+  --gff annotation.gff3 \
+  --ml-results results/prediction/phenotype_prediction_results.csv \
+  --output results/gwas/
+```
+
+Check the GenoBridge and PLINK2 logs to confirm that the number of analyzed
+variants is consistent with the full GWAS marker set rather than the smaller
+pruned prediction set.
+
+#### 2. All phenotyped accessions matched, but the VCF contains many additional samples
+
+GenoBridge may report a low overall match percentage when the VCF contains a
+large reference panel but phenotypes are available for only a subset. For
+example, a message such as:
+
+```text
+10,955/44,429 samples matched (24.7%)
+```
+
+can still mean that all 10,955 phenotyped accessions were found. The percentage
+is low because it is calculated relative to the much larger VCF sample set.
+
+The recommended solution is to subset the **full quality-controlled VCF** to
+the phenotyped accessions before running GWAS. Do not subset the already
+LD-pruned prediction VCF.
+
+```bash
+FULL_VCF=genotype_full.vcf
+PHENO=phenotype.csv
+PREFIX=genotype_full_matched
+
+# Extract VCF sample IDs.
+if [[ "$FULL_VCF" == *.gz ]]; then
+  zgrep -m1 '^#CHROM' "$FULL_VCF"
+else
+  grep -m1 '^#CHROM' "$FULL_VCF"
+fi | cut -f10- | tr '\t' '\n' | tr -d '\r' | sort -u > vcf_samples.txt
+
+# Extract phenotype accession IDs from the first CSV column.
+awk -F',' 'NR > 1 {gsub(/\r/, "", $1); print $1}' "$PHENO" \
+  | sort -u > phenotype_ids.txt
+
+# Keep IDs present in both files.
+grep -Fxf phenotype_ids.txt vcf_samples.txt > matched_samples.iid
+
+echo "Phenotype IDs:"
+wc -l phenotype_ids.txt
+
+echo "Matched IDs:"
+wc -l matched_samples.iid
+
+# Subset the full VCF by sample while retaining its full marker set.
+plink2 \
+  --vcf "$FULL_VCF" \
+  --keep matched_samples.iid \
+  --export vcf bgz \
+  --out "$PREFIX" \
+  --allow-extra-chr
+```
+
+PLINK2 accepts a one-column `--keep` file as a list of individual IDs. The
+resulting file is:
+
+```text
+genotype_full_matched.vcf.gz
+```
+
+Confirm the retained sample and marker counts:
+
+```bash
+# Number of samples
+zgrep -m1 '^#CHROM' genotype_full_matched.vcf.gz \
+  | awk -F'\t' '{print NF - 9}'
+
+# Number of VCF variant records
+zgrep -vc '^#' genotype_full_matched.vcf.gz
+```
+
+Then run GenoBridge GWAS using the sample-matched **full-marker** VCF:
+
+```bash
+genobridge-gwas \
+  --label study_name \
+  --phenotype phenotype.csv \
+  --vcf genotype_full_matched.vcf.gz \
+  --gff annotation.gff3 \
+  --ml-results results/prediction/phenotype_prediction_results.csv \
+  --output results/gwas/
+```
+
+For large cohorts, GEMMA kinship-matrix construction and eigendecomposition can
+require substantial memory and runtime. Also confirm that chromosome names in
+the VCF and GFF3 files use compatible conventions, such as `1A` versus
+`chr1A`, if nearest-gene annotations are missing.
 
 ### Large VCF consumes too much memory
 
