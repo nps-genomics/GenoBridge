@@ -441,11 +441,12 @@ The current wheel is:
 genobridge-1.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
 ```
 
-It is compatible with:
+It is compatible with OS:
 
-* CPython 3.12
+
 * Linux
-* x86_64 processors
+* Centos
+* Ubuntu
 
 The current Conda package is:
 
@@ -477,7 +478,7 @@ Copyright © 2026.
 
 Users of GenoBridge in academic research should cite:
 
-> Singh, N. P., and Mendu, V. (2026). GenoBridge: an automated sample-size-adaptive machine-learning framework for genomic prediction and predictability-gated genome-wide association analysis. Publication details pending.
+> Singh, N. P., and Mendu, V. (2026). GenoBridge: A sample-size-adaptive machine- learning pipeline for genotype-to-phenotypegenomic prediction using integratedand predictability-gated mixed-model GWASGWAS-ML hybrid validation. (Publication details pending).
 
 The citation should be updated when the manuscript and archived software DOI become available.
 
