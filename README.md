@@ -6,7 +6,7 @@
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green)](LICENSE)
 
-**A sample-size-adaptive machine-learning and mixed-model GWAS framework for genotype-to-phenotype analysis.**
+**GenoBridge: A sample-size-adaptive machine-learning pipeline for genomic prediction and predictability-gated mixed-model GWAS.**
 
 > **Recommended installation:** use the Conda command in the [Installation](#installation) section. The GitHub wheel is provided only as an advanced fallback.
 
