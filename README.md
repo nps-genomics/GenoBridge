@@ -32,7 +32,7 @@ Genotype VCF  ┘        │
                        └── Predictability gate
                                   │
                                   ▼
-Genotype VCF ── PLINK2 preprocessing ── GEMMA mixed-model GWAS
+Genotype VCF ──  preprocessing ──  mixed-model GWAS
                                   │
                                   ├── Association statistics
                                   ├── Manhattan and QQ plots
