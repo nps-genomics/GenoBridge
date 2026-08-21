@@ -42,7 +42,6 @@ Genotype VCF ──  preprocessing ──  mixed-model GWAS
 
 GenoBridge prediction evaluates Ridge regression, Random Forest, XGBoost, neural-network, and stacking models. Model capacity, PCA dimensions, validation strategy, and ensemble composition are adjusted according to dataset size.
 
-The GWAS module uses PLINK2 for genotype preprocessing and GEMMA for kinship-adjusted linear mixed-model association testing.
 
 ---
 ## Software distribution
