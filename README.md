@@ -94,8 +94,6 @@ This command installs:
 
 * GenoBridge 1.0.1
 * Python 3.12
-* GEMMA 0.98.5
-* PLINK2
 * Required Python libraries
 
 Verify the installation:
@@ -378,7 +376,6 @@ Prediction figures include model-comparison plots, prediction correlations, and 
 The GWAS output directory contains:
 
 * `gwas_summary.csv`
-* Complete GEMMA association output
 * Significant and suggestive SNP tables
 * Manhattan plots
 * QQ plots
@@ -421,11 +418,6 @@ Principal Python dependencies include:
 * Matplotlib
 * XGBoost
 * scikit-allel
-
-External programs:
-
-* GEMMA 0.98.5
-* PLINK2
 
 Manual wheel users must install GEMMA and PLINK2 separately and ensure that both
 programs are available through `PATH`.
