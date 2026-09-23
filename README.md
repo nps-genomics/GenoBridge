@@ -98,11 +98,9 @@ This command installs:
 * During installation, GenoBridge may encounter dependency conflicts or compatibility issues with some Python libraries. These are generally straightforward to resolve and do not affect the core functionality of GenoBridge. If an installation issue occurs, please check the documented dependency requirements or open a GitHub issue for assistance.
 * Example
 
-  
-   ```bash
+```bash
 conda activate genobridge \
-
-conda install -y "numpy=1.26.4"
+install -y "numpy=1.26.4"
 ```
 
 Verify the installation:
