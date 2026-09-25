@@ -215,6 +215,7 @@ genobridge-gwas \
   --vcf path/to/genotypes.vcf \
   --gff path/to/genes.gff3 \
   --ml-results results/phenotype_prediction_results.csv \
+  --gate 0.30 \
   --output results/gwas/
 ```
 
