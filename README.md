@@ -298,11 +298,10 @@ genobridge-gwas \
 Set the gate analyze traits:
 
 ```bash
-- `--gate 0.30` is the default.
-- `--gate 0` keeps every trait with a non-negative `Best_r`.
-- **To run all traits, use a negative value such as `--gate -1`.** `Best_r` can be negative, so `--gate 0` still excludes some traits.
-
-Use a separate `--output` folder for each gate value so earlier results are kept.
+- --gate 0.30 is the default.
+- --gate 0 keeps every trait with a non-negative Best_r.
+- **To run all traits, use a negative value such as --gate -1.** Best_r can be negative, so --gate 0 still excludes some traits.
+Use a separate --output folder for each gate value so earlier results are kept.
 
 ```
 
