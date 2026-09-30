@@ -95,7 +95,9 @@ This command installs:
 * GenoBridge 1.0.1
 * Python 3.12
 * Required Python libraries
-* During installation, GenoBridge may encounter dependency conflicts or compatibility issues with some Python libraries. These are generally straightforward to resolve and do not affect the core functionality of GenoBridge. If an installation issue occurs please drop message in issues section, please check the documented dependency requirements or open a GitHub issue for assistance.
+* During installation, GenoBridge may encounter dependency conflicts or compatibility issues with some Python libraries. These are generally straightforward to resolve and do not affect the core functionality of GenoBridge.
+* If an installation issue occurs please drop message in issues section.
+* please check the documented dependency requirements or open a GitHub issue for assistance.
 * Example
 
 ```bash
