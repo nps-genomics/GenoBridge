@@ -484,8 +484,8 @@ Users of GenoBridge in academic research should cite:
 > Singh, N.P., Mendu, V. GenoBridge: a sample-size-adaptive machine-learning pipeline for genomic prediction and predictability-gated mixed-model GWAS. Plant Methods (2026). https://doi.org/10.1186/s13007-026-01596-5.
 
 
-> Competing interests
-The authors declare that a patent application related to the technology/methoddescribed in this manuscript is pending.
+> Competing interests:
+The authors declare that a patent application related to the technology/method described in this manuscript is pending.
 
 ---
 
