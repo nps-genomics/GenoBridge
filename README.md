@@ -481,9 +481,7 @@ Copyright © 2026.
 
 Users of GenoBridge in academic research should cite:
 
-> Singh, N. P., and Mendu, V. (2026). GenoBridge: A sample-size-adaptive machine-learning pipeline for genomic prediction and predictability-gated mixed-model GWAS. (Publication details pending).
-
-The citation should be updated when the manuscript and archived software DOI become available.
+> Singh, N.P., Mendu, V. GenoBridge: a sample-size-adaptive machine-learning pipeline for genomic prediction and predictability-gated mixed-model GWAS. Plant Methods (2026). https://doi.org/10.1186/s13007-026-01596-5.
 
 ---
 
