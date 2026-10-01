@@ -618,6 +618,7 @@ genobridge-gwas \
   --vcf genotype_full_matched.vcf.gz \
   --gff annotation.gff3 \
   --ml-results results/prediction/phenotype_prediction_results.csv \
+  --gate 0.30 \
   --output results/gwas/
 ```
 
