@@ -96,7 +96,7 @@ This command installs:
 * Python 3.12
 * Required Python libraries
 * During installation, GenoBridge may encounter dependency conflicts or compatibility issues with some Python libraries. These are generally straightforward to resolve and do not affect the core functionality of GenoBridge.
-* If an installation issue occurs please drop message in issues section.
+* If an installation issue occurs please drop message in issues section. (22singhnagendra@gmail.com)
 * please check the documented dependency requirements or open a GitHub issue for assistance.
 * Example
 
