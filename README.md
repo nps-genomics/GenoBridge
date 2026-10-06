@@ -15,7 +15,7 @@ GenoBridge integrates genomic prediction with a predictability-gated genome-wide
 1. Automatically adjusts model complexity according to sample size.
 2. Evaluates multiple prediction models for every phenotype.
 3. Identifies traits with sufficient genomic predictability.
-4. Runs kinship-adjusted mixed-model GWAS using GEMMA.
+4. Runs kinship-adjusted mixed-model GWAS.
 5. Annotates significant associations to nearby genes.
 
 
