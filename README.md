@@ -75,19 +75,30 @@ GenoBridge v1.0.1 currently supports:
 
 ### Recommended installation
 
-GenoBridge requires Python 3.12. For the fastest and most reliable installation, we recommend creating a dedicated Conda environment using the libmamba solver.
+## Installation
 
-Recommended installation
+GenoBridge v1.0.1 requires **Python 3.12** and is distributed through the [`nps-genomics`](https://anaconda.org/nps-genomics/genobridge) Conda channel.
 
+We recommend installing GenoBridge in a dedicated environment to avoid dependency conflicts with existing Python packages.
+
+### Option 1: Micromamba (Recommended)
+
+**Micromamba is the recommended installation method for Linux users**, particularly on HPC systems and servers with older Conda versions.
+
+It provides fast dependency resolution without requiring changes to an existing Conda installation.
+
+**Step 1: Install Micromamba (Linux x86-64)**
 
 ```bash
-# Install Micromamba
 mkdir -p "$HOME/micromamba-bin"
 
 curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest \
   | tar -xvj -C "$HOME/micromamba-bin" bin/micromamba
+```
 
-# Create GenoBridge environment
+**Step 2: Create the GenoBridge environment**
+
+```bash
 export MAMBA_ROOT_PREFIX="$HOME/micromamba"
 
 "$HOME/micromamba-bin/bin/micromamba" create \
@@ -101,6 +112,39 @@ export MAMBA_ROOT_PREFIX="$HOME/micromamba"
   -y
 ```
 
+**Step 3: Verify the installation**
+
+```bash
+"$HOME/micromamba-bin/bin/micromamba" run \
+  -n genobridge genobridge-predict --help
+
+"$HOME/micromamba-bin/bin/micromamba" run \
+  -n genobridge genobridge-gwas --help
+```
+
+**Optional: Activate the environment**
+
+If you prefer to work inside the GenoBridge environment:
+
+```bash
+export MAMBA_ROOT_PREFIX="$HOME/micromamba"
+
+eval "$("$HOME/micromamba-bin/bin/micromamba" shell hook -s bash)"
+
+micromamba activate genobridge
+```
+
+You can now execute GenoBridge commands directly:
+
+```bash
+genobridge-predict --help
+genobridge-gwas --help
+```
+
+### Option 2: Conda (Alternative)
+
+Users with a modern Conda installation can install GenoBridge using:
+
 ```bash
 conda create -n genobridge \
   --override-channels \
@@ -109,28 +153,81 @@ conda create -n genobridge \
   -c bioconda \
   python=3.12 \
   genobridge=1.0.1 \
-  --solver=libmamba \
   -y
-
-conda activate genobridge
-
-genobridge-predict --help
 ```
 
-Create a new Conda environment. Do not install GenoBridge into an existing
-Python 3.6, 3.10, or 3.11 environment.
+Activate the environment:
 
 ```bash
-conda create -n genobridge \
-  --override-channels \
-  -c nps-genomics \
-  -c conda-forge \
-  -c bioconda \
-  genobridge=1.0.1 \
-  -y
-
 conda activate genobridge
 ```
+
+Verify the installation:
+
+```bash
+genobridge-predict --help
+genobridge-gwas --help
+```
+
+**Note:** Older Conda versions (such as Conda 4.14) may experience slow dependency resolution. We recommend using Micromamba instead of modifying the system-wide Conda installation.
+
+Do not add `--solver=libmamba` to commands intended for older Conda versions, because those versions may not recognize the argument.
+
+### Installation requirements
+
+| Requirement | Specification |
+|---|---|
+| GenoBridge | v1.0.1 |
+| Python | 3.12 |
+| Operating system | Linux x86-64 (verified Conda package) |
+| Package channel | `nps-genomics` |
+| Additional channels | `conda-forge`, `bioconda` |
+| Recommended environment manager | Micromamba |
+| Installation method | Dedicated environment |
+
+### Troubleshooting
+
+**Problem: Dependency resolution is very slow**
+
+Older Conda versions may take a long time to resolve the dependencies. Use the Micromamba installation method above.
+
+**Problem: `EnvironmentNameNotFound`**
+
+This means the requested environment does not exist in the environment manager being used. Ensure the installation completes successfully before activating it.
+
+**Problem: `micromamba: command not found`**
+
+Use the full executable path:
+
+```bash
+"$HOME/micromamba-bin/bin/micromamba" --version
+```
+
+**Problem: `genobridge-predict: command not found`**
+
+Verify that GenoBridge is installed in the intended environment:
+
+```bash
+"$HOME/micromamba-bin/bin/micromamba" list -n genobridge genobridge
+```
+
+Then execute the command directly through Micromamba:
+
+```bash
+"$HOME/micromamba-bin/bin/micromamba" run \
+  -n genobridge genobridge-predict --help
+```
+
+### Verify GenoBridge functionality
+
+After installation, both command-line interfaces should display their usage information successfully:
+
+```bash
+genobridge-predict --help
+genobridge-gwas --help
+```
+
+Successful execution confirms that the command-line interfaces are accessible. For complete validation, run the GenoBridge example datasets and workflows described in the documentation.
 
 This command installs:
 
