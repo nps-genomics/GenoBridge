@@ -79,6 +79,28 @@ GenoBridge requires Python 3.12. For the fastest and most reliable installation,
 
 Recommended installation
 
+
+```bash
+# Install Micromamba
+mkdir -p "$HOME/micromamba-bin"
+
+curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest \
+  | tar -xvj -C "$HOME/micromamba-bin" bin/micromamba
+
+# Create GenoBridge environment
+export MAMBA_ROOT_PREFIX="$HOME/micromamba"
+
+"$HOME/micromamba-bin/bin/micromamba" create \
+  -n genobridge \
+  --override-channels \
+  -c nps-genomics \
+  -c conda-forge \
+  -c bioconda \
+  python=3.12 \
+  genobridge=1.0.1 \
+  -y
+```
+
 ```bash
 conda create -n genobridge \
   --override-channels \
