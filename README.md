@@ -1,6 +1,7 @@
 # GenoBridge
 
 [![GitHub release](https://img.shields.io/github/v/release/nps-genomics/GenoBridge)](https://github.com/nps-genomics/GenoBridge/releases)
+[![PyPI version](https://img.shields.io/pypi/v/genobridge)](https://pypi.org/project/genobridge/)
 [![Conda version](https://img.shields.io/conda/vn/nps-genomics/genobridge)](https://anaconda.org/nps-genomics/genobridge)
 [![Platform](https://img.shields.io/badge/platform-linux--64-blue)](https://anaconda.org/nps-genomics/genobridge)
 [![Python](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/)
@@ -8,7 +9,7 @@
 
 **GenoBridge: A sample-size-adaptive machine-learning pipeline for genomic prediction and predictability-gated mixed-model GWAS.**
 
-> **Recommended installation:** use the Conda command in the [Installation](#installation) section. The GitHub wheel is provided only as an advanced fallback.
+> **Quick installation:** `python -m pip install genobridge` (CPython 3.12, Linux x86-64). For GWAS, install **GEMMA** and **PLINK2** separately, or use the Conda/Micromamba distribution that provides them.
 
 GenoBridge integrates genomic prediction with a predictability-gated genome-wide association study workflow. It:
 
@@ -46,288 +47,119 @@ GenoBridge prediction evaluates Ridge regression, Random Forest, XGBoost, neural
 ---
 ## Software distribution
 
-GenoBridge v1.0.1 is distributed for **Linux x86_64** systems.
+GenoBridge 1.0.1 is available through both **PyPI** and the **`nps-genomics` Conda channel**.
+The prediction and GWAS implementations are distributed as compiled extension modules;
+the original analysis `.py` and Cython `.pyx` files are **not** included in the published binary wheel.
+Compiled binaries are not immune to reverse engineering.
 
-The recommended installation method is the public Conda package hosted in the
-[`nps-genomics`](https://anaconda.org/nps-genomics/genobridge) channel. This
-method creates a clean Python 3.12 environment and installs GenoBridge together
-with GEMMA, PLINK2, and all required Python dependencies.
-
-A compiled CPython 3.12 wheel is also provided through GitHub Releases for
-advanced users who need a manual installation. The wheel must be installed
-inside a Python 3.12 Linux x86_64 environment.
-
-The prediction and GWAS implementations are installed as compiled Linux
-extension modules. The original Python and Cython implementation source is not
-included in the public repository.
-
----
+- [PyPI package](https://pypi.org/project/genobridge/1.0.1/)
+- [Conda package](https://anaconda.org/nps-genomics/genobridge)
+- [GitHub Releases](https://github.com/nps-genomics/GenoBridge/releases/tag/v1.0.1)
 
 ## Installation
 
-### Supported systems
+### Supported platform
 
-GenoBridge v1.0.1 currently supports:
+The currently published PyPI binary wheel targets **CPython 3.12, Linux x86-64,
+glibc 2.17 or newer**. The wheel is not built for macOS, Windows, or other Python versions.
+The Python dependencies selected by pip may have stricter platform requirements.
 
-* Linux x86_64 (`linux-64`)
-* CPython 3.12
-* glibc 2.17 or newer
+### Option 1: pip (simple prediction installation)
 
-### Recommended installation
+Create a clean Python 3.12 environment, then install the published package:
 
-## Installation
+```bash
+python3.12 -m venv genobridge-env
+source genobridge-env/bin/activate
+python -m pip install --upgrade pip
+python -m pip install genobridge==1.0.1
+```
 
-GenoBridge v1.0.1 requires **Python 3.12** and is distributed through the [`nps-genomics`](https://anaconda.org/nps-genomics/genobridge) Conda channel.
+Verify the installed commands:
 
-We recommend installing GenoBridge in a dedicated environment to avoid dependency conflicts with existing Python packages.
+```bash
+python -m pip check
+genobridge-predict --help
+genobridge-gwas --help
+```
 
-### Option 1: Micromamba (Recommended)
+**Important:** the PyPI wheel installs the GenoBridge Python package and its
+declared Python dependencies, **not** the external GEMMA and PLINK2 executables.
+The GWAS command requires both on `PATH`. Installing with pip alone is not
+sufficient to execute a full GWAS.
 
-**Micromamba is the recommended installation method for Linux users**, particularly on HPC systems and servers with older Conda versions.
+For example, in a separate Conda environment with appropriate channels:
 
-It provides fast dependency resolution without requiring changes to an existing Conda installation.
+```bash
+conda create -n genobridge-pip -c conda-forge -c bioconda \
+  python=3.12 pip gemma plink2 -y
+conda activate genobridge-pip
+python -m pip install genobridge==1.0.1
+command -v gemma
+command -v plink2
+```
 
-**Step 1: Install Micromamba (Linux x86-64)**
+Use the same environment for pip, GEMMA, and PLINK2 so the executables can be
+discovered during GWAS. Check available GEMMA versions against the requirement
+of **0.98.5 or newer**.
+
+### Option 2: Micromamba (recommended for complete GWAS setup)
+
+This approach is useful on Linux servers and HPC systems and uses the existing
+Conda distribution.
 
 ```bash
 mkdir -p "$HOME/micromamba-bin"
-
 curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest \
   | tar -xvj -C "$HOME/micromamba-bin" bin/micromamba
-```
 
-**Step 2: Create the GenoBridge environment**
-
-```bash
 export MAMBA_ROOT_PREFIX="$HOME/micromamba"
-
 "$HOME/micromamba-bin/bin/micromamba" create \
   -n genobridge \
   --override-channels \
-  -c nps-genomics \
-  -c conda-forge \
-  -c bioconda \
-  python=3.12 \
-  genobridge=1.0.1 \
-  -y
-```
+  -c nps-genomics -c conda-forge -c bioconda \
+  python=3.12 genobridge=1.0.1 -y
 
-**Step 3: Verify the installation**
-
-```bash
 "$HOME/micromamba-bin/bin/micromamba" run \
   -n genobridge genobridge-predict --help
-
 "$HOME/micromamba-bin/bin/micromamba" run \
   -n genobridge genobridge-gwas --help
 ```
 
-**Optional: Activate the environment**
-
-If you prefer to work inside the GenoBridge environment:
-
-```bash
-export MAMBA_ROOT_PREFIX="$HOME/micromamba"
-
-eval "$("$HOME/micromamba-bin/bin/micromamba" shell hook -s bash)"
-
-micromamba activate genobridge
-```
-
-You can now execute GenoBridge commands directly:
-
-```bash
-genobridge-predict --help
-genobridge-gwas --help
-```
-
-### Option 2: Conda (Alternative)
-
-Users with a modern Conda installation can install GenoBridge using:
+### Option 3: Conda
 
 ```bash
 conda create -n genobridge \
   --override-channels \
-  -c nps-genomics \
-  -c conda-forge \
-  -c bioconda \
-  python=3.12 \
-  genobridge=1.0.1 \
-  -y
-```
+  -c nps-genomics -c conda-forge -c bioconda \
+  python=3.12 genobridge=1.0.1 -y
 
-Activate the environment:
-
-```bash
 conda activate genobridge
-```
-
-Verify the installation:
-
-```bash
 genobridge-predict --help
 genobridge-gwas --help
 ```
 
-**Note:** Older Conda versions (such as Conda 4.14) may experience slow dependency resolution. We recommend using Micromamba instead of modifying the system-wide Conda installation.
+For older Conda installations with slow dependency resolution, Micromamba
+may be more convenient.
 
-Do not add `--solver=libmamba` to commands intended for older Conda versions, because those versions may not recognize the argument.
+### Option 4: GitHub wheel (advanced)
 
-### Installation requirements
+The GitHub [v1.0.1 release](https://github.com/nps-genomics/GenoBridge/releases/tag/v1.0.1)
+also provides a prebuilt wheel. For most users, **pip from PyPI** is simpler
+than downloading and installing a wheel manually.
 
-| Requirement | Specification |
-|---|---|
-| GenoBridge | v1.0.1 |
-| Python | 3.12 |
-| Operating system | Linux x86-64 (verified Conda package) |
-| Package channel | `nps-genomics` |
-| Additional channels | `conda-forge`, `bioconda` |
-| Recommended environment manager | Micromamba |
-| Installation method | Dedicated environment |
+### Installation troubleshooting
 
-### Troubleshooting
-
-**Problem: Dependency resolution is very slow**
-
-Older Conda versions may take a long time to resolve the dependencies. Use the Micromamba installation method above.
-
-**Problem: `EnvironmentNameNotFound`**
-
-This means the requested environment does not exist in the environment manager being used. Ensure the installation completes successfully before activating it.
-
-**Problem: `micromamba: command not found`**
-
-Use the full executable path:
-
-```bash
-"$HOME/micromamba-bin/bin/micromamba" --version
-```
-
-**Problem: `genobridge-predict: command not found`**
-
-Verify that GenoBridge is installed in the intended environment:
-
-```bash
-"$HOME/micromamba-bin/bin/micromamba" list -n genobridge genobridge
-```
-
-Then execute the command directly through Micromamba:
-
-```bash
-"$HOME/micromamba-bin/bin/micromamba" run \
-  -n genobridge genobridge-predict --help
-```
-
-### Verify GenoBridge functionality
-
-After installation, both command-line interfaces should display their usage information successfully:
-
-```bash
-genobridge-predict --help
-genobridge-gwas --help
-```
-
-Successful execution confirms that the command-line interfaces are accessible. For complete validation, run the GenoBridge example datasets and workflows described in the documentation.
-
-This command installs:
-
-* GenoBridge 1.0.1
-* Python 3.12
-* Required Python libraries
-* During installation, GenoBridge may encounter dependency conflicts or compatibility issues with some Python libraries. These are generally straightforward to resolve and do not affect the core functionality of GenoBridge.
-* If an installation issue occurs please drop message in issues section. (22singhnagendra@gmail.com)
-* please check the documented dependency requirements or open a GitHub issue for assistance.
-* Example
-
-```bash
-conda activate genobridge \
-install -y "numpy=1.26.4"
-```
-
-Verify the installation:
-
-```bash
-python -c "import genobridge; print('GenoBridge', genobridge.__version__)"
-
-genobridge-predict --help
-genobridge-gwas --help
-gemma -h
-plink2 --version
-```
-
-Expected GenoBridge version:
-
-```text
-GenoBridge 1.0.1
-```
-
-### Advanced manual installation from the GitHub wheel
-
-Most users should use the Conda installation above.
-
-The wheel installation is intended only for users who already understand
-Python environments and compiled wheel compatibility. The wheel requires
-CPython 3.12 on Linux x86_64.
-
-#### Where to download the wheel
-
-Open the GenoBridge v1.0.1 release page:
-
-<https://github.com/nps-genomics/GenoBridge/releases/tag/v1.0.1>
-
-On the release page, expand **Assets** and download:
-
-```text
-genobridge-1.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
-```
-
-Direct wheel download:
-
-<https://github.com/nps-genomics/GenoBridge/releases/download/v1.0.1/genobridge-1.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl>
-
-Do not download GitHub's automatically generated **Source code (zip)** or
-**Source code (tar.gz)** files for installation. Those archives contain the
-public repository contents, not the compiled GenoBridge package.
-
-Create a clean Python 3.12 environment:
-
-```bash
-conda create -n genobridge-wheel \
-  --override-channels \
-  -c conda-forge \
-  -c bioconda \
-  python=3.12 \
-  pip \
-  gemma=0.98.5 \
-  plink2 \
-  -y
-
-conda activate genobridge-wheel
-```
-
-Confirm the Python version before installing:
-
-```bash
-python --version
-uname -m
-```
-
-Expected:
-
-```text
-Python 3.12.x
-x86_64
-```
-
-Install the wheel:
-
-```bash
-python -m pip install \
-  "https://github.com/nps-genomics/GenoBridge/releases/download/v1.0.1/genobridge-1.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl"
-```
-
-Do not run this wheel command from `base` or from an environment using Python
-3.6, 3.10, or 3.11.
+- `genobridge-predict: command not found`: activate the environment where
+  GenoBridge was installed, then run `python -m pip show genobridge`.
+- `gemma: command not found` or `plink2: command not found`: install the
+  external executable and make sure it is on `PATH` in the active environment.
+- `No matching distribution found`: verify CPython 3.12, Linux x86-64, and
+  compatible glibc and Python dependency wheels.
+- `FileNotFoundError` for `phenotype.csv` or `genotype.vcf`: replace these
+  example filenames with actual input file paths.
+- CLI `--help` success checks installation only; full scientific validation
+  requires running real data and comparing validated outputs.
 
 ---
 
@@ -341,8 +173,7 @@ genobridge-predict \
   --vcf path/to/genotypes.vcf \
   --accession-col accession_id \
   --output results/ \
-  --no-outlier-removal \
-  
+  --no-outlier-removal
 ```
 
 For general analyses, the default `--max-missing-frac 0.30` threshold is recommended.
@@ -436,14 +267,14 @@ genobridge-gwas \
 | `--label`            |        optional | Cosmetic run label                               |
 | `--output`           | program default | GWAS output directory                            |
 
-Set the gate analyze traits:
+The `--gate` threshold is applied to the prediction metric used by the
+GWAS trait-selection procedure. Its default is `0.30`. For a permissive gate,
+check the behavior against the reported prediction metrics and use `--gate -1`
+only when it matches the intended inclusion rule.
 
 ```bash
---gate 0.30 is the default.
---gate 0 keeps every trait with a non-negative Best_r.
-**To run all traits, use a negative value such as --gate -1.** Best_r can be negative, so --gate 0 still excludes some traits.
-Use a separate --output folder for each gate value so earlier results are kept.
-
+genobridge-gwas --phenotype phenotype.csv --vcf genotype.vcf \
+  --gff annotation.gff3 --gate 0.30 --output results/gwas/
 ```
 
 ---
@@ -868,20 +699,14 @@ The full VCF may still be used during the GWAS stage.
 
 ## Release integrity
 
-The SHA-256 checksum for the v1.0.1 wheel is:
-
-```text
-869c9163653cdeb99d09543806dfe92ca21d4e3a9b32dbc17f4d051eb4dd7110
-```
-
-Verify a downloaded wheel with:
+When distributing a wheel downloaded from GitHub or PyPI, verify its
+SHA-256 checksum against the digest published for that **exact file**.
+The GitHub release asset and PyPI wheel may not have identical bytes, so
+do not reuse a checksum across distributions without verifying it.
 
 ```bash
-sha256sum \
-  genobridge-1.0.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
+sha256sum genobridge-1.0.1-*.whl
 ```
-
-The calculated checksum must match the value above.
 
 ---
 
@@ -889,4 +714,5 @@ The calculated checksum must match the value above.
 
 * GitHub repository: <https://github.com/nps-genomics/GenoBridge>
 * GitHub releases: <https://github.com/nps-genomics/GenoBridge/releases>
+* PyPI: <https://pypi.org/project/genobridge/>
 * Conda package: <https://anaconda.org/nps-genomics/genobridge>
