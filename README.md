@@ -52,7 +52,7 @@ The prediction and GWAS implementations are distributed as compiled extension mo
 the original analysis `.py` and Cython `.pyx` files are **not** included in the published binary wheel.
 Compiled binaries are not immune to reverse engineering.
 
-- [PyPI package](https://pypi.org/project/genobridge/1.0.1/)
+- [PyPI package](https://pypi.org/project/genobridge/)
 - [Conda package](https://anaconda.org/nps-genomics/genobridge)
 - [GitHub Releases](https://github.com/nps-genomics/GenoBridge/releases/tag/v1.0.1)
 
