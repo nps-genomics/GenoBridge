@@ -148,6 +148,14 @@ The GitHub [v1.0.1 release](https://github.com/nps-genomics/GenoBridge/releases/
 also provides a prebuilt wheel. For most users, **pip from PyPI** is simpler
 than downloading and installing a wheel manually.
 
+## Software Registries
+
+GenoBridge is registered in the ELIXIR bioinformatics
+software registry, bio.tools.
+
+- bio.tools ID: biotools:genobridge
+- https://bio.tools/genobridge
+
 ### Installation troubleshooting
 
 - `genobridge-predict: command not found`: activate the environment where
